@@ -1,0 +1,212 @@
+<!DOCTYPE html>
+<html lang="es"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>AgroGestor Ruscus — Plano interactivo</title>
+<style>
+:root{--bg:#F4F7F5;--card:#fff;--fg:#14231B;--mut:#5B6B62;--line:#D3DDD7;--acc:#1F7A4D;--bed:#CFE3D8;
+--ok:#247F49;--off:#7C8D99;--al:#C93A3A;--edge:#5B6B62;--dash:#64757F;--rk:#E6B800;--rkt:#8F6500;--s1:#8A9BA8;--s2:#247F49;--s3:#D9A21B;--s4:#7B6AA8;--za:#1F7A4D;--zb:#2F6FA8;--zc:#B5651D}
+@media (prefers-color-scheme:dark){:root{--bg:#0F1A14;--card:#162420;--fg:#E6EFEA;--mut:#93A59B;--line:#2A3D33;--acc:#4CC38A;--ok:#3DBB7C;--off:#93A59B;--al:#F07575;--edge:transparent;--dash:#8A9BA8;--rk:#E6B800;--rkt:#F0C419;--bed:#27463A;--za:#4CC38A;--zb:#6FA8E0;--zc:#E0985A}}
+*{box-sizing:border-box}
+html,body{height:100%;margin:0}
+body{background:var(--bg);color:var(--fg);font:14px/1.45 system-ui,"Segoe UI",Roboto,sans-serif;display:grid;grid-template-rows:auto 1fr;overflow:hidden}
+header{display:flex;align-items:center;gap:12px;padding:8px 14px;border-bottom:1px solid var(--line);background:var(--card)}
+header h1{font:700 16px Georgia,serif;margin:0;flex:1}
+button,select{font:inherit;color:var(--fg);background:var(--card);border:1px solid var(--line);border-radius:6px;padding:5px 10px;cursor:pointer}
+button:hover{border-color:var(--acc)}button:focus-visible,select:focus-visible{outline:2px solid var(--acc)}
+#zl{min-width:48px;text-align:center;color:var(--mut)}
+#wrap{display:grid;grid-template-columns:200px 1fr 260px;min-height:0}
+aside{padding:12px;background:var(--card);overflow:auto}
+#left{border-right:1px solid var(--line)}#detail{border-left:1px solid var(--line)}
+h2{font-size:12px;text-transform:uppercase;letter-spacing:.06em;color:var(--mut);margin:10px 0 4px}aside>h2:first-child{margin-top:0}
+.row{display:flex;align-items:center;gap:8px;padding:2px 0;cursor:pointer}
+.dot{width:14px;height:14px;flex:none;border-radius:3px;display:inline-block}
+.n{margin-left:auto;color:var(--mut)}
+#stage{position:relative;min-width:0}
+svg#plano{width:100%;height:100%;display:block;cursor:grab;touch-action:none;background:var(--bg)}
+svg#plano.drag{cursor:grabbing}
+.bed{cursor:pointer}.bed:hover rect{stroke-width:.25}
+.hint{position:absolute;left:10px;bottom:8px;font-size:12px;color:var(--mut);background:var(--card);border:1px solid var(--line);border-radius:6px;padding:3px 8px}
+.kv{display:grid;grid-template-columns:auto 1fr;gap:4px 10px;margin:0}.kv dt{color:var(--mut)}.kv dd{margin:0;text-align:right}
+.sens{display:flex;justify-content:space-between;border:1px solid var(--line);border-radius:6px;padding:6px 8px;margin:4px 0;color:var(--mut)}
+.empty{color:var(--mut)}
+@media (max-width:1000px){#wrap{grid-template-columns:170px 1fr 230px}}
+@media (max-width:700px){#wrap{grid-template-columns:1fr;position:relative}#left{display:none}#detail{position:absolute;left:0;right:0;bottom:0;max-height:45%;border-top:1px solid var(--line);border-left:0}}
+.ic{width:20px;height:20px;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round;color:var(--acc);flex:none}
+.sens{display:grid;grid-template-columns:22px 1fr auto;gap:2px 8px;align-items:center;color:var(--fg)}
+.sens small{font-size:12px}
+.grad{height:12px;border-radius:6px;border:1px solid var(--line)}.gl{display:flex;justify-content:space-between;font-size:12px;color:var(--mut);margin-top:2px}
+input[type=number]{width:100%;font:inherit;color:var(--fg);background:var(--card);border:1px solid var(--line);border-radius:6px;padding:4px 6px}
+.pad{display:grid;grid-template-columns:repeat(4,1fr);gap:4px;margin:8px 0}
+button[aria-pressed=true]{background:var(--acc);color:var(--card);border-color:var(--acc)}
+#modal{position:fixed;inset:0;background:rgba(0,0,0,.6);display:flex;align-items:center;justify-content:center;padding:16px;z-index:10}#modal[hidden]{display:none}
+.sheet{background:var(--card);border:1px solid var(--line);border-radius:10px;padding:12px;max-width:min(1100px,100%);max-height:100%;overflow:auto}
+#sheetbar{display:flex;gap:8px;align-items:center;margin-bottom:8px;flex-wrap:wrap}.sp{flex:1}
+#paper>svg{width:100%;height:auto;display:block;border:1px solid var(--line)}
+@media print{@page{size:A4 landscape;margin:0}html,body{height:auto!important;overflow:visible!important;display:block!important;background:#fff!important}body>*:not(#modal):not(#defs){display:none!important}#modal{position:static!important;background:none!important;padding:0!important}.sheet{border:0!important;padding:0!important;max-width:none!important}#sheetbar,#xh{display:none!important}#paper>svg{border:0}}
+.row input{margin:0;width:14px;height:14px;flex:none;accent-color:var(--acc)}
+.row .ic{width:14px;height:14px}
+.sens b{white-space:nowrap}
+.bed:focus{outline:none}.bed:focus-visible rect{stroke:var(--fg);stroke-width:.3}
+</style></head><body>
+<svg id="defs" width="0" height="0" style="position:absolute" aria-hidden="true"><defs>
+<symbol id="ico-temp" viewBox="0 0 24 24"><path d="M14 4v10.5a4 4 0 1 1-4 0V4a2 2 0 0 1 4 0z"/><path d="M12 11v6"/></symbol>
+<symbol id="ico-hum" viewBox="0 0 24 24"><path d="M12 22a7 7 0 0 0 7-7c0-2-1-3.9-3-5.5S12.5 5 12 2.5C11.5 5 10 7.400 8 9.500 6 11.100 5 13 5 15a7 7 0 0 0 7 7z"/></symbol>
+<symbol id="ico-ph" viewBox="0 0 24 24"><path d="M10 2v7.500a2 2 0 0 1-.2.900L4.700 20.500a1 1 0 0 0 .9 1.500h12.800a1 1 0 0 0 .9-1.500L14.200 10.400a2 2 0 0 1-.2-.9V2"/><path d="M8.500 2h7M7 16h10"/></symbol>
+<symbol id="ico-cond" viewBox="0 0 24 24"><path d="M13 2 3 14h9l-1 8 10-12h-9l1-8z"/></symbol>
+<symbol id="ico-node" viewBox="0 0 24 24"><rect x="6" y="6" width="12" height="12" rx="2"/><path d="M9 2v4M15 2v4M9 18v4M15 18v4M2 9h4M2 15h4M18 9h4M18 15h4"/></symbol>
+<symbol id="ico-bug" viewBox="0 0 24 24"><path d="M8 8a4 4 0 0 1 8 0v6a4 4 0 0 1-8 0z"/><path d="M12 8v11M8 11H4M16 11h4M8 15l-3 2M16 15l3 2M9 4 7 2M15 4l2-2"/></symbol>
+<symbol id="ico-leaf" viewBox="0 0 24 24"><path d="M5 19C5 10 11 4 20 4c0 9-6 15-15 15z"/><path d="M5 19 12 12"/><circle cx="15" cy="9" r=".9"/></symbol>
+<symbol id="ico-brote" viewBox="0 0 24 24"><circle cx="12" cy="12" r="2"/><circle cx="12" cy="12" r="6"/><circle cx="12" cy="12" r="10" stroke-dasharray="2 3"/></symbol>
+</defs></svg>
+<header><h1>AgroGestor Ruscus · Plano interactivo</h1>
+<button id="ed" aria-pressed="false">Editar posición</button><button id="ex">Exportar</button>
+<button id="zo" aria-label="Alejar">−</button><span id="zl">100%</span><button id="zi" aria-label="Acercar">+</button><button id="fit">Ajustar</button></header>
+<div id="wrap">
+<aside id="left"><h2>Zonas</h2><div id="zones"></div><div id="edt"></div><h2>Vista</h2><div id="vistas"></div><div id="legend"></div><h2>Capas</h2><label class="row"><input type="checkbox" id="ly" checked>Nodos IoT</label><div id="nleg"></div><label class="row"><input type="checkbox" id="lf" checked>Alertas fitosanitarias</label><div id="fleg"></div><h2>Variables</h2><div id="vleg"></div></aside>
+<div id="stage"><svg id="plano" role="application" aria-label="Plano de las 25 camas"><g id="vp"></g></svg>
+<div class="hint">Arrastra para mover · Rueda para zoom · Clic para seleccionar · Esc para limpiar · 0 para ajustar</div></div>
+<aside id="detail"></aside></div>
+<div id="modal" hidden role="dialog" aria-label="Exportar plano"><div class="sheet"><div id="sheetbar"><b>Exportar plano</b><span class="empty">Se exporta la vista y las capas que tienes activas.</span><span class="sp"></span><button id="dlpng">Descargar PNG</button><button id="dlpdf">Guardar como PDF</button><button id="xc">Cerrar</button></div><div id="paper"></div><p class="empty" id="xh"></p></div></div>
+<script>
+const ESTADOS=[{k:"Disponible",c:"var(--s1)",t:"var(--fg)",g:"○"},{k:"Sembrada",c:"var(--s2)",t:"#fff",g:"●"},{k:"Cosechada",c:"var(--s3)",t:"#1a1200",g:"✓"},{k:"En descanso",c:"var(--s4)",t:"#fff",g:"Zz"}];
+const ZONAS=[{l:"A",n:9,x:2,c:"var(--za)"},{l:"B",n:8,x:22.2,c:"var(--zb)"},{l:"C",n:8,x:40.4,c:"var(--zc)"}];
+const NS="http://www.w3.org/2000/svg",PX=10; // 1 m = 10 px al 100 %
+const $=id=>document.getElementById(id);
+const el=(n,a={},t)=>{const e=document.createElementNS(NS,n);for(const k in a)e.setAttribute(k,a[k]);if(t!=null)e.textContent=t;return e};
+const camas=[];let g=0;
+ZONAS.forEach(z=>{for(let i=0;i<z.n;i++){g++;camas.push({id:z.l+"-"+String(i+1).padStart(2,"0"),zona:z.l,num:g,x:z.x+i*2,y:3,w:1.2,h:10,e:g%4,vis:true})}});
+const SENS=[{k:"Temperatura",i:"temp",u:" °C",d:1,lo:15,hi:30,al:34.5,rk:29.2},{k:"Humedad",i:"hum",u:" %",d:0,lo:40,hi:80,al:28,rk:77},{k:"pH",i:"ph",u:"",d:1,lo:5.5,hi:7,al:4.9,rk:6.9},{k:"Conductividad",i:"cond",u:" mS/cm",d:1,lo:.8,hi:2.5,al:3.4,rk:2.4}];
+const NST={ok:{t:"Activo",g:"●",c:"var(--ok)"},off:{t:"Offline",g:"⊘",c:"var(--off)"},al:{t:"En alerta",g:"▲",c:"var(--al)"}};
+const SEM=[{t:"Óptimo",g:"OK",c:"var(--ok)",x:"var(--card)",tx:"var(--ok)"},{t:"Riesgo",g:"!",c:"var(--rk)",x:"#1a1200",tx:"var(--rkt)"},{t:"Crítico",g:"!!",c:"var(--al)",x:"var(--card)",tx:"var(--al)"}];
+const BR={t:"Brote",n:2,d:"Foco que se extiende entre camas contiguas",dias:1},EN={t:"Enfermedad",n:1,d:"Manchas por hongo en el follaje",dias:3};
+const PEST={"A-02":BR,"A-03":BR,"A-04":BR,"B-07":{t:"Plaga",n:1,d:"Insectos en hojas jóvenes",dias:2},"C-05":EN,"C-06":EN};
+const PK={Plaga:"bug",Enfermedad:"leaf",Brote:"brote"},OUT=[["A-02","A-03","A-04"]];
+camas.forEach(c=>{const n=c.num,base=[20+(n*7)%9,55+(n*11)%20,6+((n*3)%8)/10,1.2+((n*5)%10)/10],off=n%7===0,aS=n%5===0?n%4:-1,rS=n%6===0?n%4:-1;
+ c.nodo="NODO-"+c.id;c.min=off?180+n:1+n%6;
+ c.sen=SENS.map((s,i)=>{const v=i===aS?s.al:i===rS?s.rk:base[i],m=(s.hi-s.lo)*.1;return{v:off?null:v,st:off?"off":(v<s.lo||v>s.hi?"al":"ok"),lv:off?-1:(v<s.lo||v>s.hi?2:(v<s.lo+m||v>s.hi-m?1:0))}});
+ c.ns=off?"off":(c.sen.some(x=>x.st==="al")?"al":"ok");
+ c.pest=PEST[c.id]||null;c.sem=off?-1:Math.max(0,...c.sen.map(x=>x.lv),c.pest?c.pest.n:0);c.mot=[];
+ c.sen.forEach((x,i)=>{if(x.lv>0)c.mot.push(SENS[i].k+(x.lv>1?" fuera de rango":" cerca del límite"))});if(c.pest)c.mot.push("Alerta fitosanitaria")});
+const RNG=[0,1].map(i=>{const v=camas.map(c=>c.sen[i].v).filter(x=>x!=null);return[Math.min(...v),Math.max(...v)]});
+const PAL=[["#3B6FB6","#8CC7D0","#F4E7A1","#F2A04E","#D64545"],["#EAF3F8","#9CCAE0","#3F85B8","#1B4F86"]];
+const hx=h=>[1,3,5].map(i=>parseInt(h.slice(i,i+2),16));
+function ramp(p,t){t=Math.min(1,Math.max(0,t))*(p.length-1);const i=Math.min(p.length-2,Math.floor(t)),f=t-i,a=hx(p[i]),b=hx(p[i+1]);return"rgb("+a.map((v,k)=>Math.round(v+(b[k]-v)*f)).join(",")+")"}
+const lum=c=>{const m=c.match(/\d+/g).map(v=>{v/=255;return v<=.03928?v/12.92:Math.pow((v+.055)/1.055,2.4)});return .2126*m[0]+.7152*m[1]+.0722*m[2]};
+const txt=c=>1.05/(lum(c)+.05)>=(lum(c)+.05)/.05?"#fff":"#000";
+const VISTAS=[["estado","Estado de cama"],["sem","Semáforo"],["temp","Temperatura"],["hum","Humedad"]];
+let layer=true,vista="estado",lfit=true,edit=false,msg="",rst=false,XSVG="";
+const FIELD={w:60,h:18},G=.2,r1=v=>Math.round(v*10)/10,ORG=camas.map(c=>[c.id,c.x,c.y]),HINT=document.querySelector(".hint").textContent;
+try{const sv=JSON.parse(localStorage.getItem("agro.pos")||"null");if(sv)sv.forEach(p=>{const c=camas.find(k=>k.id===p[0]);if(c){c.x=p[1];c.y=p[2]}})}catch(e){}
+const save=()=>{try{localStorage.setItem("agro.pos",JSON.stringify(camas.map(c=>[c.id,c.x,c.y])))}catch(e){}};
+function why(c,x,y){if(x<0||y<0||x+c.w>FIELD.w||y+c.h>FIELD.h)return"Fuera del área de la finca";const o=camas.find(k=>k!==c&&x<k.x+k.w+G&&x+c.w+G>k.x&&y<k.y+k.h+G&&y+c.h+G>k.y);return o?"Muy cerca de "+o.id+" (mínimo "+G+" m)":""}
+function setPos(c,x,y){x=r1(x);y=r1(y);const m=why(c,x,y);if(m){msg=m;return false}c.x=x;c.y=y;msg="";save();return true}
+function nudge(dx,dy,big){const c=camas.find(k=>k.id===sel);if(!c)return;const d=big?1:.1;setPos(c,c.x+dx*d,c.y+dy*d);draw()}
+function box(){const a=camas.filter(c=>c.vis),l=a.length?a:camas,x0=Math.min(...l.map(c=>c.x))-1.5,y0=Math.min(...l.map(c=>c.y))-2.5,x1=Math.max(...l.map(c=>c.x+c.w))+1.5,y1=Math.max(...l.map(c=>c.y+c.h))+2;return{x:x0,y:y0,w:x1-x0,h:y1-y0}}
+const LT={bg:"#FFFFFF",card:"#FFFFFF",fg:"#14231B",mut:"#5B6B62",line:"#D3DDD7",acc:"#1F7A4D",bed:"#CFE3D8",s1:"#8A9BA8",s2:"#247F49",s3:"#D9A21B",s4:"#7B6AA8",ok:"#247F49",off:"#7C8D99",al:"#C93A3A",edge:"#5B6B62",dash:"#64757F",rk:"#E6B800",rkt:"#8F6500",za:"#1F7A4D",zb:"#2F6FA8",zc:"#B5651D"};
+function legendItems(){let t,r;
+ if(vista==="estado"){t="Estados";r=ESTADOS.map((e,i)=>({c:e.c,l:e.g+" "+e.k,n:camas.filter(c=>c.e===i).length}))}
+ else if(vista==="sem"){t="Semáforo";r=SEM.map((m,i)=>({c:m.c,l:m.g+" "+m.t,n:camas.filter(c=>c.sem===i).length})).concat({c:"var(--off)",l:"— Sin datos",n:camas.filter(c=>c.sem<0).length})}
+ else{const i=vista==="temp"?0:1;t=SENS[i].k;r=[{g:PAL[i],l:RNG[i][0].toFixed(0)+SENS[i].u+"  →  "+RNG[i][1].toFixed(0)+SENS[i].u}]}
+ return{t,r}}
+function openExport(){const k0=sel,e0=edit;sel=null;edit=false;draw(true);const inner=vp.innerHTML;sel=k0;edit=e0;draw(true);
+ const B=box(),W=1123,H=794,lw=240,pw=W-60-lw-24,ph=H-160,sc=Math.min(pw/B.w,ph/B.h),lx=W-30-lw,vl=(VISTAS.find(v=>v[0]===vista)||[])[1],L=legendItems();let y=92,g="";
+ const row=(c,t,n)=>{g+=`<rect x="${lx}" y="${y-10}" width="12" height="12" rx="2" fill="${c}"/><text x="${lx+20}" y="${y}" font-size="12" fill="var(--fg)">${t}</text><text x="${lx+lw}" y="${y}" font-size="12" text-anchor="end" fill="var(--mut)">${n}</text>`;y+=20};
+ const head=t=>{y+=10;g+=`<text x="${lx}" y="${y}" font-size="11" font-weight="700" fill="var(--mut)">${t.toUpperCase()}</text>`;y+=20};
+ head(L.t);
+ L.r.forEach(r=>{if(r.g){g+=`<linearGradient id="xg">${r.g.map((c,i)=>`<stop offset="${i/(r.g.length-1)}" stop-color="${c}"/>`).join("")}</linearGradient><rect x="${lx}" y="${y-10}" width="${lw}" height="12" rx="3" fill="url(#xg)"/>`;y+=24;g+=`<text x="${lx}" y="${y}" font-size="12" fill="var(--fg)">${r.l}</text>`;y+=20}else row(r.c,r.l,r.n)});
+ if(layer){head("Nodos IoT");Object.keys(NST).forEach(k=>row(NST[k].c,NST[k].g+" "+NST[k].t,camas.filter(c=>c.ns===k).length))}
+ if(lfit){head("Alertas fitosanitarias");Object.keys(PK).forEach(k=>{g+=`<use href="#ico-${PK[k]}" x="${lx-1}" y="${y-13}" width="16" height="16" style="color:var(--al);fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round"/><text x="${lx+20}" y="${y}" font-size="12" fill="var(--fg)">${k}</text><text x="${lx+lw}" y="${y}" font-size="12" text-anchor="end" fill="var(--mut)">${camas.filter(c=>c.pest&&c.pest.t===k).length}</text>`;y+=20})}
+ XSVG=`<svg xmlns="http://www.w3.org/2000/svg" width="${W}" height="${H}" viewBox="0 0 ${W} ${H}" font-family="Segoe UI,Arial,sans-serif"><defs>${document.querySelector("#defs defs").innerHTML}</defs><rect width="${W}" height="${H}" fill="var(--bg)"/>
+<text x="30" y="42" font-size="24" font-weight="700" font-family="Georgia,serif" fill="var(--fg)">AgroGestor Ruscus — Plano de la finca Santandersito</text>
+<text x="30" y="64" font-size="13" fill="var(--mut)">Vista: ${vl} · ${new Date().toLocaleDateString("es")}</text>
+<svg x="30" y="85" width="${pw}" height="${ph}" viewBox="${B.x} ${B.y} ${B.w} ${B.h}">${inner}</svg>
+${g}<rect x="30" y="${H-48}" width="${5*sc}" height="5" fill="var(--fg)"/><text x="${30+5*sc+8}" y="${H-42}" font-size="12" fill="var(--fg)">5 m</text>
+<text x="30" y="${H-20}" font-size="11" fill="var(--mut)">Datos de sensores y alertas simulados · Zonas A, B y C · 25 camas</text></svg>`.replace(/var\(--(\w+)\)/g,(m,k)=>LT[k]||m);
+ $("paper").innerHTML=XSVG;$("xh").textContent="";$("modal").hidden=false}
+function dlPNG(){const img=new Image();img.onload=()=>{const c=document.createElement("canvas");c.width=2246;c.height=1588;const x=c.getContext("2d");x.fillStyle="#fff";x.fillRect(0,0,c.width,c.height);x.drawImage(img,0,0,c.width,c.height);const a=document.createElement("a");a.download="plano-agrogestor.png";a.href=c.toDataURL("image/png");document.body.append(a);a.click();a.remove();$("xh").textContent="Si el PNG no se descargó, usa «Guardar como PDF»."};img.onerror=()=>{$("xh").textContent="No se pudo generar el PNG. Usa «Guardar como PDF»."};img.src="data:image/svg+xml;charset=utf-8,"+encodeURIComponent(XSVG)}
+function look(c){const e=ESTADOS[c.e],nd={f:"var(--bed)",s:"var(--dash)",d:".4 .3",t:"var(--fg)",g:"—"};
+ if(vista==="estado")return{f:c.e?e.c:"var(--bed)",s:c.e?"var(--edge)":"var(--dash)",d:c.e?"":".4 .3",t:c.e?e.t:"var(--fg)",g:e.g};
+ if(vista==="sem"){if(c.sem<0)return nd;const m=SEM[c.sem];return{f:m.c,s:"var(--edge)",d:"",t:m.x,g:m.g}}
+ const i=vista==="temp"?0:1,r=c.sen[i];if(r.v==null)return nd;
+ const col=ramp(PAL[i],(r.v-RNG[i][0])/((RNG[i][1]-RNG[i][0])||1));return{f:col,s:"var(--edge)",d:"",t:txt(col),g:Math.round(r.v)+""}}
+function pestBadge(gr,c){const p=c.pest,x=c.x+.6,y=c.y+7.2,col=p.n>1?"var(--al)":"var(--rkt)";
+ gr.append(el("circle",{cx:x,cy:y,r:.55,fill:"var(--card)",stroke:col,"stroke-width":.16}),el("use",{href:"#ico-"+PK[p.t],x:x-.36,y:y-.36,width:.72,height:.72,style:"color:"+col+";fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round"}))}
+function legendHTML(){
+ if(vista==="estado")return"<h2>Estados</h2>"+ESTADOS.map((e,i)=>`<div class="row"><span class="dot" style="background:${e.c}"></span>${e.g} ${e.k}<span class="n">${camas.filter(c=>c.e===i).length}</span></div>`).join("");
+ if(vista==="sem")return"<h2>Semáforo</h2>"+SEM.map((m,i)=>`<div class="row"><span class="dot" style="background:${m.c}"></span>${m.g} ${m.t}<span class="n">${camas.filter(c=>c.sem===i).length}</span></div>`).join("")+`<div class="row"><span class="dot" style="background:var(--off)"></span>— Sin datos<span class="n">${camas.filter(c=>c.sem<0).length}</span></div>`;
+ const i=vista==="temp"?0:1,u=SENS[i].u,r=RNG[i];
+ return`<h2>${SENS[i].k}</h2><div class="grad" style="background:linear-gradient(90deg,${PAL[i].join(",")})"></div><div class="gl"><span>${r[0].toFixed(0)}${u}</span><span>${r[1].toFixed(0)}${u}</span></div><div class="row" style="margin-top:6px"><span class="dot" style="background:var(--off)"></span>— Offline, sin dato</div>`}
+function marker(gr,c){const x=c.x+.6,y=c.y+c.h-1.2,k=c.ns,col=NST[k].c,m=el("g",{class:"mk"});
+ if(k==="al"){m.append(el("polygon",{points:`${x},${y-.7} ${x+.7},${y+.55} ${x-.7},${y+.55}`,fill:col,stroke:"var(--card)","stroke-width":.12,"stroke-linejoin":"round"}),el("text",{x:x,y:y+.38,"font-size":.7,"font-weight":700,"text-anchor":"middle",fill:"var(--card)"},"!"))}
+ else{m.append(el("circle",{cx:x,cy:y,r:.5,fill:col,stroke:"var(--card)","stroke-width":.12}));
+  m.append(k==="ok"?el("circle",{cx:x,cy:y,r:.17,fill:"var(--card)"}):el("line",{x1:x-.28,y1:y+.28,x2:x+.28,y2:y-.28,stroke:"var(--card)","stroke-width":.14,"stroke-linecap":"round"}))}
+ gr.append(m)}
+let sel=null,view={k:1,x:0,y:0};
+const svg=$("plano"),vp=$("vp");
+function apply(){vp.setAttribute("transform",`translate(${view.x} ${view.y}) scale(${view.k*PX})`);$("zl").textContent=Math.round(view.k*100)+"%"}
+function zoomAt(f,cx,cy){const k=Math.min(4,Math.max(.25,view.k*f)),r=k/view.k;view.x=cx-(cx-view.x)*r;view.y=cy-(cy-view.y)*r;view.k=k;apply()}
+function fit(){const b=svg.getBoundingClientRect(),B=edit?{x:-1,y:-1.5,w:FIELD.w+2,h:FIELD.h+2}:box(),k=Math.min(b.width/(B.w*PX),b.height/(B.h*PX))*.95;view.k=Math.min(4,Math.max(.25,k));view.x=(b.width-B.w*PX*view.k)/2-B.x*PX*view.k;view.y=(b.height-B.h*PX*view.k)/2-B.y*PX*view.k;apply()}
+function draw(l){vp.replaceChildren();
+ if(edit){let d="";for(let x=0;x<=FIELD.w;x++)d+=`M${x} 0V${FIELD.h}`;for(let y=0;y<=FIELD.h;y++)d+=`M0 ${y}H${FIELD.w}`;
+  vp.append(el("path",{d,stroke:"var(--line)","stroke-width":.04,fill:"none"}),el("rect",{x:0,y:0,width:FIELD.w,height:FIELD.h,fill:"none",stroke:"var(--acc)","stroke-width":.12,"stroke-dasharray":".8 .5"}),el("text",{x:.3,y:-.4,"font-size":.7,fill:"var(--mut)"},`Área de la finca ${FIELD.w} × ${FIELD.h} m · cuadrícula de 1 m`))}
+ ZONAS.forEach(z=>{const bs=camas.filter(c=>c.zona===z.l),x0=Math.min(...bs.map(b=>b.x))-.8,x1=Math.max(...bs.map(b=>b.x+b.w))+.8,y0=Math.min(...bs.map(b=>b.y))-1.6,y1=Math.max(...bs.map(b=>b.y+b.h))+1.6;
+  vp.append(el("rect",{x:x0,y:y0,width:x1-x0,height:y1-y0,rx:.5,fill:"none",stroke:"var(--mut)","stroke-width":.1,"stroke-dasharray":".5 .4"}),
+  el("rect",{x:x0+.4,y:y0+.4,width:1.1,height:1.1,rx:.2,fill:z.c}),el("text",{x:x0+1.8,y:y0+1.3,"font-size":.9,"font-weight":700,fill:"var(--fg)"},"Zona "+z.l))});
+ if(lfit)OUT.forEach(ids=>{const bs=ids.map(id=>camas.find(c=>c.id===id)).filter(c=>c.vis);if(!bs.length)return;const x0=Math.min(...bs.map(b=>b.x))-.5,x1=Math.max(...bs.map(b=>b.x+b.w))+.5,y0=Math.min(...bs.map(b=>b.y))-.15,y1=Math.max(...bs.map(b=>b.y+b.h))+1.4;
+  vp.append(el("rect",{x:x0,y:y0,width:x1-x0,height:y1-y0,rx:.4,fill:"var(--al)","fill-opacity":.12,stroke:"var(--al)","stroke-width":.14,"stroke-dasharray":".7 .4"}),el("text",{x:x0+.2,y:y1-.15,"font-size":.6,"font-weight":700,fill:"var(--al)"},"Brote"))});
+ camas.filter(c=>c.vis&&c.id!==sel).concat(camas.filter(c=>c.id===sel)).forEach(c=>{const e=ESTADOS[c.e],L=look(c),s=c.id===sel,gr=el("g",{class:"bed",tabindex:0,role:"button","aria-label":`Cama ${c.id}, ${e.k}, nodo ${NST[c.ns].t}, semáforo ${c.sem<0?"sin datos":SEM[c.sem].t}${c.pest?", "+c.pest.t:""}`});
+  gr.dataset.id=c.id;
+  gr.append(el("title",{},`${c.id} · ${e.k} · Nodo: ${NST[c.ns].t} · Semáforo: ${c.sem<0?"sin datos":SEM[c.sem].t}${c.pest?" · "+c.pest.t:""}`),
+   el("rect",{x:c.x,y:c.y,width:c.w,height:c.h,rx:.15,fill:L.f,stroke:c.bad?"var(--al)":(s?"var(--fg)":L.s),"stroke-width":s||c.bad?.3:.15,"stroke-dasharray":L.d}),
+   el("text",{x:c.x+.6,y:c.y+1,"font-size":.7,"text-anchor":"middle",fill:L.t},L.g),
+   el("text",{x:c.x+.78,y:c.y+5.2,"font-size":.75,"font-weight":700,"text-anchor":"middle",fill:L.t,transform:`rotate(-90 ${c.x+.78} ${c.y+5.2})`},c.id));
+  if(layer)marker(gr,c);if(lfit&&c.pest)pestBadge(gr,c);
+  vp.append(gr)});
+ if(!l)side()}
+function side(){
+ $("zones").innerHTML=ZONAS.map(z=>`<label class="row"><input type="checkbox" data-z="${z.l}" ${camas.find(c=>c.zona===z.l).vis?"checked":""}><span class="dot" style="background:${z.c}"></span>Zona ${z.l}<span class="n">${z.n}</span></label>`).join("");
+ $("legend").innerHTML=legendHTML();
+ $("nleg").innerHTML=Object.keys(NST).map(k=>`<div class="row"><span style="color:${NST[k].c};width:14px;text-align:center">${NST[k].g}</span>${NST[k].t}<span class="n">${camas.filter(c=>c.ns===k).length}</span></div>`).join("");
+ rst=false;$("edt").innerHTML=edit?'<h2>Edición</h2><button id="ra" style="width:100%">Restablecer posiciones</button>':"";
+ $("vistas").innerHTML=VISTAS.map(v=>`<label class="row"><input type="radio" name="vista" value="${v[0]}" ${vista===v[0]?"checked":""}>${v[1]}</label>`).join("");
+ $("fleg").innerHTML=Object.keys(PK).map(k=>`<div class="row"><svg class="ic"><use href="#ico-${PK[k]}"/></svg>${k}<span class="n">${camas.filter(c=>c.pest&&c.pest.t===k).length}</span></div>`).join("");
+ $("vleg").innerHTML=SENS.map(s=>`<div class="row"><svg class="ic"><use href="#ico-${s.i}"/></svg>${s.k}</div>`).join("");
+ const c=camas.find(c=>c.id===sel),d=$("detail");
+ if(!c){d.innerHTML='<h2>Detalle de cama</h2><p class="empty">Selecciona una cama del plano para ver su ficha técnica.</p>';return}
+ d.innerHTML=`<h2>Detalle de cama</h2><div style="font:700 22px system-ui,'Segoe UI',sans-serif">${c.id}</div><p class="empty" style="margin:0 0 10px">Zona ${c.zona} · N.º ${c.num} de 25</p>
+ <label for="est" class="empty">Estado</label><br><select id="est" style="width:100%;margin:4px 0 12px">${ESTADOS.map((e,i)=>`<option value="${i}" ${i===c.e?"selected":""}>${e.g} ${e.k}</option>`).join("")}</select>
+ <dl class="kv"><dt>Tamaño</dt><dd>${c.w} × ${c.h} m</dd><dt>Posición</dt><dd>x ${c.x} m · y ${c.y} m</dd><dt>ID técnico</dt><dd>cama_${c.id.toLowerCase().replace("-","_")}</dd></dl>
+ ${edit?`<h2>Reubicar cama</h2><div style="display:grid;grid-template-columns:1fr 1fr;gap:6px"><label class="empty">X (m)<input id="px" type="number" step="0.1" value="${c.x}"></label><label class="empty">Y (m)<input id="py" type="number" step="0.1" value="${c.y}"></label></div><div class="pad"><button data-n="0,-1" aria-label="Subir">↑</button><button data-n="-1,0" aria-label="Izquierda">←</button><button data-n="1,0" aria-label="Derecha">→</button><button data-n="0,1" aria-label="Bajar">↓</button></div><small class="empty">Cada clic mueve 0,1 m (con Mayús, 1 m). También puedes arrastrar la cama.</small>${msg?`<p style="color:var(--al);margin:6px 0">${msg}</p>`:""}<button id="rb" style="width:100%;margin-top:6px">Volver a su posición original</button>`:""}
+ <h2>Semáforo</h2><div class="sens" style="grid-template-columns:1fr"><span>${c.sem<0?'<b>— Sin datos</b> <small class="empty">(nodo offline)</small>':`<b style="color:${SEM[c.sem].tx}">${SEM[c.sem].g} ${SEM[c.sem].t}</b>`}${c.mot.length?`<br><small class="empty">${c.mot.join(" · ")}</small>`:""}</span></div>
+ <h2>Control fitosanitario</h2>${c.pest?`<div class="sens" style="grid-template-columns:22px 1fr"><svg class="ic"><use href="#ico-${PK[c.pest.t]}"/></svg><span><b>${c.pest.t}</b> · <span style="color:${c.pest.n>1?"var(--al)":"var(--rkt)"}">${c.pest.n>1?"Crítico":"Riesgo"}</span><br><small class="empty">${c.pest.d} · hace ${c.pest.dias} d</small></span></div>`:'<p class="empty" style="margin:4px 0">Sin alertas fitosanitarias.</p>'}
+ <h2>Nodo IoT</h2><div class="sens" style="grid-template-columns:22px 1fr"><svg class="ic"><use href="#ico-node"/></svg><span><b>${c.nodo}</b> · ESP32<br><small style="color:${NST[c.ns].c}">${NST[c.ns].g} ${NST[c.ns].t}</small><small class="empty"> · últ. lectura hace ${c.min>=60?Math.round(c.min/60)+" h":c.min+" min"}</small></span></div>
+ <h2>Sensores</h2>${SENS.map((s,i)=>{const r=c.sen[i],t=NST[r.st];return `<div class="sens"><svg class="ic"><use href="#ico-${s.i}"/></svg><span>${s.k}<br>${r.lv===1?`<small style="color:var(--rkt)">◆ Cerca del límite</small>`:`<small style="color:${t.c}">${t.g} ${t.t}</small>`}</span><b>${r.v==null?"—":r.v.toFixed(s.d)+s.u}</b></div>`}).join("")}<p class="empty" style="font-size:12px">Datos simulados, hasta conectar los ESP32.</p>
+ <button id="cl" style="width:100%;margin-top:8px">Cerrar</button>`}
+// eventos
+$("zi").onclick=()=>{const b=svg.getBoundingClientRect();zoomAt(1.25,b.width/2,b.height/2)};
+$("zo").onclick=()=>{const b=svg.getBoundingClientRect();zoomAt(.8,b.width/2,b.height/2)};
+$("fit").onclick=fit;
+svg.addEventListener("wheel",e=>{e.preventDefault();const b=svg.getBoundingClientRect();zoomAt(e.deltaY<0?1.1:.9,e.clientX-b.left,e.clientY-b.top)},{passive:false});
+let dr=null,moved=false;
+svg.addEventListener("pointerdown",e=>{const bd=e.target.closest(".bed");const bc=bd&&camas.find(k=>k.id===bd.dataset.id);dr={x:e.clientX,y:e.clientY,vx:view.x,vy:view.y,id:bd?bd.dataset.id:null,bx:bc?bc.x:0,by:bc?bc.y:0};moved=false;svg.setPointerCapture(e.pointerId)});
+svg.addEventListener("pointermove",e=>{if(!dr)return;const dx=e.clientX-dr.x,dy=e.clientY-dr.y;if(Math.abs(dx)+Math.abs(dy)>4){moved=true;svg.classList.add("drag")}if(moved){if(edit&&dr.id){const c=camas.find(k=>k.id===dr.id),z=view.k*PX;c.x=r1(dr.bx+dx/z);c.y=r1(dr.by+dy/z);c.bad=why(c,c.x,c.y);sel=c.id;draw(true)}else{view.x=dr.vx+dx;view.y=dr.vy+dy;apply()}}});
+svg.addEventListener("pointerup",e=>{svg.classList.remove("drag");if(dr&&edit&&dr.id&&moved){const c=camas.find(k=>k.id===dr.id),m=why(c,c.x,c.y);if(m){c.x=dr.bx;c.y=dr.by;msg=m}else{msg="";save()}c.bad="";sel=c.id;draw();dr=null;return}if(dr&&!moved){sel=dr.id;msg="";draw()}dr=null});
+svg.addEventListener("keydown",e=>{if((e.key==="Enter"||e.key===" ")&&e.target.dataset&&e.target.dataset.id){sel=e.target.dataset.id;draw()}});
+$("detail").addEventListener("change",e=>{if(e.target.id==="est"){camas.find(c=>c.id===sel).e=+e.target.value;draw()}});
+$("detail").addEventListener("click",e=>{if(e.target.id==="cl"){sel=null;draw()}});
+$("zones").addEventListener("change",e=>{const z=e.target.dataset.z;camas.forEach(c=>{if(c.zona===z)c.vis=e.target.checked});if(sel&&!camas.find(c=>c.id===sel).vis)sel=null;draw()});
+addEventListener("keydown",e=>{if(!$("modal").hidden){if(e.key==="Escape")$("modal").hidden=true;return}if(e.target.tagName==="SELECT"||(e.target.tagName==="INPUT"&&e.target.type==="number"))return;const b=svg.getBoundingClientRect();
+ if(edit&&sel&&e.key.startsWith("Arrow")){nudge(e.key==="ArrowLeft"?-1:e.key==="ArrowRight"?1:0,e.key==="ArrowUp"?-1:e.key==="ArrowDown"?1:0,e.shiftKey);e.preventDefault();return}
+ if(e.key==="Escape"){sel=null;draw()}else if(e.key==="0")fit();else if(e.key==="+"||e.key==="=")zoomAt(1.25,b.width/2,b.height/2);else if(e.key==="-")zoomAt(.8,b.width/2,b.height/2);
+ else if(e.key==="ArrowLeft"){view.x+=40;apply()}else if(e.key==="ArrowRight"){view.x-=40;apply()}else if(e.key==="ArrowUp"){view.y+=40;apply()}else if(e.key==="ArrowDown"){view.y-=40;apply()}});
+$("ly").onchange=e=>{layer=e.target.checked;draw()};
+$("lf").onchange=e=>{lfit=e.target.checked;draw()};
+$("vistas").onchange=e=>{vista=e.target.value;draw()};
+$("ed").onclick=()=>{edit=!edit;msg="";$("ed").textContent=edit?"Terminar edición":"Editar posición";$("ed").setAttribute("aria-pressed",edit);document.querySelector(".hint").textContent=edit?"Modo edición: arrastra una cama o usa las flechas (Mayús = 1 m) · Los cambios se guardan solos":HINT;fit();draw()};
+$("ex").onclick=openExport;$("xc").onclick=()=>{$("modal").hidden=true};$("dlpdf").onclick=()=>window.print();$("dlpng").onclick=dlPNG;
+$("detail").addEventListener("click",e=>{const n=e.target.dataset&&e.target.dataset.n;if(n){const p=n.split(",").map(Number);nudge(p[0],p[1],e.shiftKey)}else if(e.target.id==="rb"){const o=ORG.find(r=>r[0]===sel),c=camas.find(k=>k.id===sel);setPos(c,o[1],o[2]);draw()}});
+$("detail").addEventListener("change",e=>{if(e.target.id==="px"||e.target.id==="py"){const c=camas.find(k=>k.id===sel);setPos(c,+$("px").value,+$("py").value);draw()}});
+$("left").addEventListener("click",e=>{if(e.target.id==="ra"){if(!rst){rst=true;e.target.textContent="¿Seguro? Pulsa otra vez";return}rst=false;ORG.forEach(o=>{const c=camas.find(k=>k.id===o[0]);c.x=o[1];c.y=o[2]});msg="";save();fit();draw()}});
+addEventListener("resize",fit);
+draw();fit();
+</script></body></html>
