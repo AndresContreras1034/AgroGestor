@@ -5,16 +5,10 @@ use axum::{
     routing::get,
 };
 use serde::Serialize;
-use sqlx::PgPool;
 use tower_http::cors::CorsLayer;
 
 use crate::modules;
-use crate::{config, db};
-
-#[derive(Clone)]
-pub(crate) struct AppState {
-    database: PgPool,
-}
+use crate::{config, db, state::AppState};
 
 #[derive(Serialize)]
 struct HealthResponse {
@@ -24,9 +18,11 @@ struct HealthResponse {
 
 pub async fn serve() -> Result<(), Box<dyn std::error::Error + Send + Sync>> {
     let database_url = config::database::database_url()?;
-    let database = db::connection::connect(&database_url).await?;
+    let max_connections = config::app::database_max_connections()?;
+    let database = db::connection::connect(&database_url, max_connections).await?;
+    sqlx::migrate!("./migrations").run(&database).await?;
     let address = config::app::api_address()?;
-    let state = AppState { database };
+    let state = AppState { db: database };
 
     let cors = CorsLayer::new()
         .allow_origin(vec![
@@ -36,21 +32,21 @@ pub async fn serve() -> Result<(), Box<dyn std::error::Error + Send + Sync>> {
             HeaderValue::from_static("http://tauri.localhost"),
             HeaderValue::from_static("https://tauri.localhost"),
         ])
-        .allow_methods([Method::GET, Method::POST, Method::OPTIONS])
-        .allow_headers([axum::http::header::CONTENT_TYPE]);
+        .allow_methods([Method::GET, Method::POST, Method::PATCH, Method::OPTIONS])
+        .allow_headers([
+            axum::http::header::CONTENT_TYPE,
+            axum::http::HeaderName::from_static("x-gestor"),
+        ]);
 
     let app = Router::new()
         .route("/health", get(health))
-        .nest("/api/v1/produccion", modules::produccion::router::router())
-        .nest("/api/v1/diseno", modules::diseno::router::router())
-        .nest("/api/v1/monitoreo", modules::monitoreo::router::router())
-        .nest("/api/v1/calidad", modules::calidad::router::router())
-        .nest("/api/v1/comercial", modules::comercial::router::router())
-        .nest(
-            "/api/v1/trazabilidad",
-            modules::trazabilidad::router::router(),
-        )
-        .nest("/api/v1/analitica", modules::analitica::router::router())
+        .nest("/api/produccion", modules::produccion::router::router())
+        .nest("/api/diseno", modules::diseno::router::router())
+        .nest("/api/monitoreo", modules::monitoreo::router::router())
+        .nest("/api/calidad", modules::calidad::router::router())
+        .nest("/api/comercial", modules::comercial::router::router())
+        .nest("/api/trazabilidad", modules::trazabilidad::router::router())
+        .nest("/api/analitica", modules::analitica::router::router())
         .with_state(state)
         .layer(cors);
 
@@ -64,7 +60,7 @@ async fn health(
     State(state): State<AppState>,
 ) -> Result<Json<HealthResponse>, (StatusCode, &'static str)> {
     sqlx::query("SELECT 1")
-        .execute(&state.database)
+        .execute(&state.db)
         .await
         .map_err(|error| {
             tracing::error!(%error, "Falló la comprobación de PostgreSQL");

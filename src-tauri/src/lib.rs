@@ -1,9 +1,13 @@
 mod config;
 mod db;
+mod errors;
 mod logging;
 mod modules;
 mod router;
+mod state;
 mod types;
+
+use std::time::Duration;
 
 pub fn run() {
     let env_result = dotenvy::from_filename("src-tauri/.env");
@@ -15,8 +19,21 @@ pub fn run() {
     tauri::Builder::default()
         .setup(|_| {
             tauri::async_runtime::spawn(async {
-                if let Err(error) = router::serve().await {
-                    tracing::error!(%error, "No se pudo iniciar la API local");
+                let mut espera = 1;
+                loop {
+                    if let Err(error) = dotenvy::from_filename("src-tauri/.env") {
+                        tracing::debug!(%error, "No se pudo recargar src-tauri/.env");
+                    }
+
+                    match router::serve().await {
+                        Ok(()) => tracing::warn!("La API local se detuvo; se volverá a iniciar"),
+                        Err(error) => {
+                            tracing::error!(%error, "No se pudo iniciar la API local; se reintentará");
+                        }
+                    }
+
+                    tokio::time::sleep(Duration::from_secs(espera)).await;
+                    espera = (espera * 2).min(30);
                 }
             });
             Ok(())

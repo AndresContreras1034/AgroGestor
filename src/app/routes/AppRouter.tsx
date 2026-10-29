@@ -2,6 +2,8 @@ import { BrowserRouter, Navigate, Route, Routes } from "react-router-dom";
 import { AppLayout } from "../layout/AppLayout";
 import { DashboardPage } from "../../modules/dashboard/pages/DashboardPage";
 import { ModulePage } from "../../shared/ui/ModulePage";
+import { CamasPage } from "../../modules/produccion/pages/CamasPage";
+import { PlanoPage } from "../../modules/plano/pages/PlanoPage";
 
 export function AppRouter() {
   return (
@@ -9,15 +11,10 @@ export function AppRouter() {
       <Routes>
         <Route element={<AppLayout />}>
           <Route index element={<DashboardPage />} />
+          <Route path="produccion/camas" element={<CamasPage />} />
           <Route
             path="plano/*"
-            element={
-              <ModulePage
-                title="Plano"
-                description="Zonas, camas y distribución de la finca."
-                includes={["Zonas A, B y C", "Posición de las 25 camas", "Capas y edición del plano"]}
-              />
-            }
+            element={<PlanoPage />}
           />
           <Route
             path="produccion/*"
