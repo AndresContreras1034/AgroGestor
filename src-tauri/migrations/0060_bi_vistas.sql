@@ -1,0 +1,1 @@
+-- Vistas de solo lectura para Power BI pendientes.

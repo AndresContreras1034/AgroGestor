@@ -1,14 +1,26 @@
-// Learn more about Tauri commands at https://tauri.app/develop/calling-rust/
-#[tauri::command]
-fn greet(name: &str) -> String {
-    format!("Hello, {}! You've been greeted from Rust!", name)
-}
+mod config;
+mod db;
+mod logging;
+mod modules;
+mod router;
+mod types;
 
-#[cfg_attr(mobile, tauri::mobile_entry_point)]
 pub fn run() {
+    let env_result = dotenvy::from_filename("src-tauri/.env");
+    logging::init();
+    if let Err(error) = env_result {
+        tracing::debug!(%error, "No se cargó src-tauri/.env; se usarán variables del entorno");
+    }
+
     tauri::Builder::default()
-        .plugin(tauri_plugin_opener::init())
-        .invoke_handler(tauri::generate_handler![greet])
+        .setup(|_| {
+            tauri::async_runtime::spawn(async {
+                if let Err(error) = router::serve().await {
+                    tracing::error!(%error, "No se pudo iniciar la API local");
+                }
+            });
+            Ok(())
+        })
         .run(tauri::generate_context!())
-        .expect("error while running tauri application");
+        .expect("error while running AgroGestor");
 }

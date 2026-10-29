@@ -1,0 +1,1 @@
+-- Migración del módulo comercial pendiente.

@@ -1,0 +1,1 @@
+-- Datos semilla pendientes: 25 camas, zonas A/B/C y lote RSC-2026-014.

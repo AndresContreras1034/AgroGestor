@@ -1,0 +1,1 @@
+-- Base de esquemas PostgreSQL pendiente de definición.
