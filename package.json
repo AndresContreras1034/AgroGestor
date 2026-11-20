@@ -1,5 +1,6 @@
 {
   "name": "agrogestor",
+  "description": "Sistema de gestión agrícola para escritorio con React, Tauri, Rust, Axum, PostgreSQL e IoT",
   "private": true,
   "version": "0.1.0",
   "type": "module",
