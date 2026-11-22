@@ -28,7 +28,7 @@ La cama se deriva de la siembra en el servidor. Solo se puede cosechar en lotes 
 | Monitoreo e ingesta | Implementado con simulador HTTP y Azure IoT Hub |
 | Calidad | Incidencias, inspecciones y tratamientos implementados |
 | Comercial | Clientes, órdenes y despachos implementados |
-| Trazabilidad | Buscador de lotes y vista de cadena implementados |
+| Trazabilidad | Búsqueda, cadena de producción/venta y línea de tiempo implementadas |
 | Analítica | Módulo base, semáforo y predicción estructurados |
 | Business intelligence | Vistas SQL y documentación base |
 | Empaquetado y despliegue | Pendiente de automatización completa |
@@ -164,8 +164,13 @@ Al iniciar Tauri, la API escucha en `http://127.0.0.1:8787` de forma predetermin
 | `GET /api/produccion/camas` | Consultar camas de producción |
 | `PATCH /api/produccion/camas/{codigo}` | Modificar una cama |
 | `GET /api/diseno/zonas` | Consultar zonas |
-| `GET /api/diseno/plano/` | Consultar el plano |
+| `GET /api/diseno/plano` | Consultar el plano |
 | `PATCH /api/diseno/plano/camas/{codigo}` | Actualizar posición visual |
+| `GET /api/trazabilidad/lotes?q={texto}` | Buscar lotes por código |
+| `GET /api/trazabilidad/lotes/{codigo}/cadena` | Consultar origen, cosechas, destinos y despachos |
+| `GET /api/trazabilidad/lotes/{codigo}/linea-tiempo` | Consultar eventos cronológicos del lote |
+
+La vista y su alcance se describen en [docs/trazabilidad.md](docs/trazabilidad.md). Los datos de demostración son opcionales y se cargan manualmente con los scripts de `tools/seed/`; no se ejecutan como migraciones.
 
 Las escrituras enviadas al backend pueden incluir `X-Gestor` con el área responsable:
 
