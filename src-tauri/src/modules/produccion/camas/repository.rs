@@ -1,11 +1,11 @@
-use sqlx::PgPool;
+use sqlx::PgExecutor;
 
 use super::models::Cama;
 
 const COLUMNAS: &str = "id, codigo, zona, numero, estado, observaciones, actualizado_en";
 
 pub async fn listar(
-    db: &PgPool,
+    db: impl PgExecutor<'_>,
     zona: Option<&str>,
     estado: Option<&str>,
 ) -> Result<Vec<Cama>, sqlx::Error> {
@@ -21,7 +21,7 @@ pub async fn listar(
     .await
 }
 
-pub async fn obtener(db: &PgPool, codigo: &str) -> Result<Option<Cama>, sqlx::Error> {
+pub async fn obtener(db: impl PgExecutor<'_>, codigo: &str) -> Result<Option<Cama>, sqlx::Error> {
     sqlx::query_as::<_, Cama>(&format!(
         "SELECT {COLUMNAS} FROM produccion.cama WHERE codigo = $1"
     ))
@@ -31,7 +31,7 @@ pub async fn obtener(db: &PgPool, codigo: &str) -> Result<Option<Cama>, sqlx::Er
 }
 
 pub async fn actualizar(
-    db: &PgPool,
+    db: impl PgExecutor<'_>,
     codigo: &str,
     estado: Option<&str>,
     observaciones: Option<&str>,
@@ -53,7 +53,7 @@ pub async fn actualizar(
     .await
 }
 
-pub async fn contar_por_zona(db: &PgPool) -> Result<Vec<(String, i64)>, sqlx::Error> {
+pub async fn contar_por_zona(db: impl PgExecutor<'_>) -> Result<Vec<(String, i64)>, sqlx::Error> {
     sqlx::query_as::<_, (String, i64)>("SELECT zona, COUNT(*) FROM produccion.cama GROUP BY zona")
         .fetch_all(db)
         .await
