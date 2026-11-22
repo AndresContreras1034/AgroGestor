@@ -1,5 +1,13 @@
 # AgroGestor
 
+[![License: MIT](https://img.shields.io/badge/License-MIT-green.svg)](LICENSE)
+[![Frontend](https://img.shields.io/badge/Frontend-React%2018-61dafb)](package.json)
+[![Desktop](https://img.shields.io/badge/Desktop-Tauri%202-24c8db)](src-tauri/tauri.conf.json)
+
+<p align="center">
+  <img src="public/agrogestor-logo.svg" alt="Logotipo AgroGestor" width="128">
+</p>
+
 Sistema de escritorio para administrar la producción, el monitoreo, la calidad, la trazabilidad y la operación comercial de una finca agrícola.
 
 AgroGestor combina React y TypeScript con Tauri, Rust, Axum y PostgreSQL. Incluye un plano interactivo de camas, módulos operativos, ingesta de datos IoT y una arquitectura preparada para dividir responsabilidades por dominio.
@@ -35,7 +43,28 @@ La cama se deriva de la siembra en el servidor. Solo se puede cosechar en lotes 
 
 ## Flujo de producción
 
-Una cama recorre este ciclo. El backend realiza cada transición en una transacción para mantener consistentes cama y siembra.
+Una cama recorre un ciclo operativo completo. El flujo principal es:
+
+```mermaid
+flowchart LR
+    A[Preparar cama] --> B[Registrar siembra]
+    B --> C[Riegos y labores]
+    C --> D{¿Cosecha lista?}
+    D -->|No| C
+    D -->|Sí| E[Cosechar tallos]
+    E --> F[Clasificar calidad]
+    F --> G[Crear o asignar lote]
+    G --> H[Poscosecha y despacho]
+    H --> I[Descanso]
+    I --> A
+
+    E --> J[Cosecha parcial]
+    J --> C
+```
+
+Una siembra puede tener varias cosechas parciales. Solo la cosecha que se marca como final cambia la siembra y la cama al estado `cosechada`. El lote permanece abierto hasta que el proceso comercial lo cierre.
+
+El backend realiza cada transición en una transacción para mantener consistentes cama y siembra.
 
 ```mermaid
 stateDiagram-v2
@@ -334,3 +363,7 @@ La ingesta admite:
 - Automatizar pruebas y CI
 - Documentar el modelo entidad-relación
 - Preparar empaquetado y despliegue
+
+## Licencia
+
+AgroGestor se distribuye bajo la licencia **MIT**. Consulta el archivo [LICENSE](LICENSE) para conocer los términos completos.

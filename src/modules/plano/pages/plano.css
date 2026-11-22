@@ -331,7 +331,7 @@
   display: block;
   width: 100%;
   height: auto;
-  aspect-ratio: 1000 / 480;
+  aspect-ratio: 1000 / 650;
   overflow: hidden;
   border-radius: 6px;
   touch-action: none;
@@ -520,6 +520,70 @@
 
 .paisaje-arbol {
   opacity: 0.88;
+}
+
+.mapa-kicker {
+  fill: #40563f;
+  font-size: 15px;
+  font-weight: 800;
+  letter-spacing: 1.2px;
+}
+
+.mapa-subtitulo,
+.mapa-etiqueta {
+  fill: #4c5d47;
+  font-size: 8px;
+  font-weight: 800;
+  letter-spacing: 0.5px;
+}
+
+.mapa-subtitulo {
+  fill: #6f7c69;
+  font-size: 8.5px;
+  letter-spacing: 0.8px;
+}
+
+.mapa-bloque-titulo-claro {
+  fill: #f8f8ef;
+  font-size: 8px;
+  font-weight: 800;
+  letter-spacing: 0.4px;
+}
+
+.mapa-centro-titulo {
+  fill: #f8f8ef;
+  font-size: 8.5px;
+  font-weight: 800;
+  letter-spacing: 0.4px;
+}
+
+.mapa-centro-subtitulo {
+  fill: #dbe4d2;
+  font-size: 6px;
+  font-weight: 600;
+  letter-spacing: 0.3px;
+}
+
+.mapa-etapa-numero {
+  fill: #fffdf5;
+  font-size: 6.5px;
+  font-weight: 700;
+}
+
+.mapa-etapa-titulo {
+  fill: #394b3a;
+  font-size: 7px;
+  font-weight: 800;
+}
+
+.mapa-etapa-detalle {
+  fill: #69705e;
+  font-size: 6.4px;
+  font-weight: 600;
+}
+
+.mapa-arbol {
+  opacity: 0.9;
 }
 
 .plano-leyenda {

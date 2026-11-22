@@ -9,7 +9,7 @@ interface Punto {
 const ZOOM_MINIMO = 0.6;
 const ZOOM_MAXIMO = 6;
 const ZOOM_AJUSTADO = 0.95;
-const CENTRO_PLANO = { x: 500, y: 240 };
+const CENTRO_PLANO = { x: 500, y: 325 };
 
 function limitarZoom(valor: number) {
   return Math.min(ZOOM_MAXIMO, Math.max(ZOOM_MINIMO, valor));

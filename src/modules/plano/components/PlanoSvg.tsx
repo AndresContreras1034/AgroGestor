@@ -6,30 +6,16 @@ import type { useZoomPan } from "../hooks/useZoomPan";
 import {
   ALTO_PLANO,
   ANCHO_PLANO,
+  CAMINO_INTERNO_X,
   ESCALA_METROS,
   ORIGEN_PARCELAS,
   tipoDeZona,
 } from "../utils/planoGeometria";
 
-const ARBOLES = [
-  [52, 94, 1],
-  [52, 170, 1],
-  [52, 252, 1],
-  [52, 334, 1],
-  [52, 490, 1],
-  [52, 570, 1],
-  [170, 534, 1],
-  [290, 534, 1],
-  [410, 534, 1],
-  [530, 534, 1],
-  [650, 534, 1],
-  [830, 534, 1],
-  [928, 110, 1],
-  [928, 215, 1],
-  [928, 320, 1],
-  [928, 430, 1],
-  [928, 545, 1],
-] as const;
+const ZOOM_DETALLE = 1.8;
+const ANDEN = 3.2;
+const CAMINO_X_M = (CAMINO_INTERNO_X - ORIGEN_PARCELAS.x) / ESCALA_METROS;
+const ARBOLES_X = [470, 518, 566, 614, 662, 710, 758, 806];
 
 interface PlanoSvgProps {
   zonas: ZonaPlano[];
@@ -65,136 +51,160 @@ type Gesto =
       movimiento: boolean;
     };
 
-function Arbol({ x, y, escala }: { x: number; y: number; escala: number }) {
+function Arbol({ x, y }: { x: number; y: number }) {
   return (
-    <g transform={`translate(${x} ${y}) scale(${escala})`} className="paisaje-arbol">
-      <circle r="6" fill="#68805c" stroke="#f1f0e2" strokeWidth="1.2" />
-      <circle r="2.1" fill="#93a47c" />
-      <path d="M-4-3 4 3M4-3-4 3" stroke="#aab692" strokeWidth=".65" />
+    <g transform={`translate(${x} ${y})`} className="mapa-arbol">
+      <circle r="7" fill="#6f8f5e" stroke="#f4f5ec" strokeWidth="1.5" />
+      <circle r="2.4" fill="#9db387" />
     </g>
   );
 }
 
-function CentroPoscosecha({ x, y }: { x: number; y: number }) {
-  const estaciones = [
-    { nombre: "RECEPCIÓN", detalle: ["Pesaje", "de cosecha"], color: "#e7eadb" },
-    { nombre: "LAVADO", detalle: ["Agua", "filtrada"], color: "#dcebe5" },
-    { nombre: "SELECCIÓN", detalle: ["Corte y", "calidad"], color: "#e9ead8" },
-    { nombre: "EMPAQUE", detalle: ["Frío y", "despacho"], color: "#e6e9df" },
-  ];
-
+function Tanque({ x, y }: { x: number; y: number }) {
   return (
-    <g transform={`translate(${x} ${y})`} className="paisaje-poscosecha">
-      <rect x="-7" y="-7" width="214" height="178" rx="10" fill="#405444" opacity=".13" />
-      <rect x="0" y="0" width="200" height="164" rx="7" fill="#f3f1e7" stroke="#737b68" strokeWidth="2" />
-      <path d="M3 7q0-4 4-4h186q4 0 4 4v20H3z" fill="#485d4a" />
-      <text x="12" y="16" className="paisaje-centro-titulo">CENTRO DE POSCOSECHA</text>
-      <text x="190" y="16" textAnchor="end" className="paisaje-centro-subtitulo">FLUJO LIMPIO · 4 ETAPAS</text>
-      <path d="M3 27h194" stroke="#b3baa7" strokeWidth="1" />
-      {estaciones.map((estacion, index) => {
-        const sx = 5 + index * 47;
-        return (
-          <g key={estacion.nombre} transform={`translate(${sx} 34)`}>
-            <rect width="42" height="105" rx="3" fill={estacion.color} stroke="#aab29e" strokeWidth="1" />
-            <circle cx="8" cy="9" r="5" fill="#55745a" />
-            <text x="8" y="11" textAnchor="middle" className="paisaje-etapa-numero">{index + 1}</text>
-            <text x="25" y="23" textAnchor="middle" className="paisaje-etapa-titulo">{estacion.nombre}</text>
-            <path d="M4 29h34" stroke="#bdc3b4" />
-            {index === 0 && (
-              <g transform="translate(7 42)">
-                <rect x="0" y="10" width="15" height="16" rx="1" fill="#b68e59" stroke="#80694a" />
-                <path d="M3 10V6h9v4m-9 7h9m-9 4h9" fill="none" stroke="#80694a" strokeWidth="1" />
-                <rect x="22" y="10" width="15" height="16" rx="1" fill="#c19d68" stroke="#80694a" />
-                <path d="M25 10V6h9v4m-9 7h9m-9 4h9" fill="none" stroke="#80694a" strokeWidth="1" />
-                <path d="M4 35h31" stroke="#89927c" strokeWidth="2" />
-                <circle cx="10" cy="35" r="2" fill="#596b55" />
-                <circle cx="28" cy="35" r="2" fill="#596b55" />
-              </g>
-            )}
-            {index === 1 && (
-              <g transform="translate(7 43)">
-                <rect x="1" y="6" width="35" height="23" rx="3" fill="#8bb4ac" stroke="#547b76" strokeWidth="1.4" />
-                <path d="M5 13h27m-23 4h20m-16 4h13" stroke="#e9f4e9" strokeWidth="1.1" />
-                <path d="M9 0v5m17-5v5" stroke="#547b76" strokeWidth="2" />
-                <path d="M18 31v6m-11 0h23" stroke="#86785b" strokeWidth="1.5" />
-              </g>
-            )}
-            {index === 2 && (
-              <g transform="translate(7 43)">
-                <rect x="1" y="8" width="35" height="22" rx="2" fill="#d8c99e" stroke="#847957" strokeWidth="1.2" />
-                <path d="M5 13h27m-24 5h21m-18 5h15" stroke="#8e825f" strokeWidth="1" />
-                <path d="M8 4h22" stroke="#63785b" strokeWidth="2" />
-                <path d="m23 2 7 2-7 2" fill="none" stroke="#63785b" strokeWidth="1.5" />
-              </g>
-            )}
-            {index === 3 && (
-              <g transform="translate(7 43)">
-                <path d="M2 14h35M2 27h35" stroke="#77816f" strokeWidth="2" />
-                <circle cx="8" cy="14" r="2" fill="#526650" />
-                <circle cx="20" cy="14" r="2" fill="#526650" />
-                <circle cx="32" cy="14" r="2" fill="#526650" />
-                <rect x="5" y="2" width="12" height="10" rx="1" fill="#bd9860" stroke="#88734f" />
-                <rect x="22" y="2" width="12" height="10" rx="1" fill="#bd9860" stroke="#88734f" />
-                <path d="M5 6h12m5 0h12" stroke="#e6d5aa" />
-              </g>
-            )}
-            <text x="21" y="91" textAnchor="middle" className="paisaje-etapa-detalle">
-              <tspan x="21">{estacion.detalle[0]}</tspan>
-              <tspan x="21" dy="4">{estacion.detalle[1]}</tspan>
-            </text>
-            {index < estaciones.length - 1 && (
-              <path d="M42 84h7" stroke="#567453" strokeWidth="2" markerEnd="url(#plano-flecha-proceso)" />
-            )}
-          </g>
-        );
-      })}
-      <path d="M8 148h184" stroke="#c1c5b7" />
-      <path d="M14 154h172" stroke="#7c856f" strokeWidth="2" strokeDasharray="8 5" />
-      <path d="M27 164v7m37-7v7m37-7v7m37-7v7m37-7v7" stroke="#6b705f" strokeWidth="2" />
-      <text x="100" y="160" textAnchor="middle" className="paisaje-anden">ANDÉN DE CARGA · DESPACHO</text>
-      <rect x="164" y="143" width="28" height="20" rx="2" fill="#d8ded1" stroke="#707d6d" />
-      <path d="M169 148h18m-18 4h18m-18 4h18" stroke="#91a18b" strokeWidth="1.2" />
+    <g transform={`translate(${x} ${y})`}>
+      <ellipse cx="12" cy="28" rx="12" ry="4" fill="#7e9d99" />
+      <rect x="0" y="5" width="24" height="23" fill="#d6e0d6" stroke="#66827a" strokeWidth="1.2" />
+      <ellipse cx="12" cy="5" rx="12" ry="4" fill="#eff2e8" stroke="#66827a" strokeWidth="1.2" />
+      <ellipse cx="12" cy="28" rx="12" ry="4" fill="#a9c2b9" stroke="#66827a" strokeWidth="1" />
     </g>
   );
 }
 
 function Bodega({ x, y }: { x: number; y: number }) {
   return (
-    <g transform={`translate(${x} ${y})`} className="paisaje-bodega">
-      <rect x="2" y="4" width="82" height="54" rx="4" fill="#455643" opacity=".16" />
-      <rect x="0" y="0" width="82" height="52" rx="3" fill="#e9e7da" stroke="#737b68" strokeWidth="1.5" />
-      <path d="M3 5h76v8H3z" fill="#596b56" />
-      <path d="M8 6v5m7-5v5m7-5v5m7-5v5m7-5v5m7-5v5m7-5v5m7-5v5m7-5v5m7-5v5m7-5v5" stroke="#c1c9b8" strokeWidth=".8" />
-      <path d="M9 21h23v21H9zm37 0h26v21H46z" fill="#c7d0bc" stroke="#87917d" />
-      <path d="M13 26h15m-15 5h15m-15 5h15m37-10H50m15 5H50m15 5H50" stroke="#899479" strokeWidth="1.2" />
-      <path d="M34 22v20" stroke="#899479" />
-      <rect x="5" y="-13" width="72" height="12" rx="6" fill="#fffdf7" stroke="#c6cebb" />
-      <text x="41" y="-4.5" textAnchor="middle" className="paisaje-bodega-titulo">BODEGA DE INSUMOS</text>
+    <g transform={`translate(${x} ${y})`}>
+      <rect width="150" height="80" rx="4" fill="#ece9dc" stroke="#737b68" strokeWidth="1.5" />
+      <path d="M0 4q0-4 4-4h142q4 0 4 4v16H0z" fill="#596b56" />
+      <text x="75" y="14" textAnchor="middle" className="mapa-bloque-titulo-claro">BODEGA DE INSUMOS</text>
+      <rect x="12" y="32" width="40" height="38" rx="2" fill="#c7d0bc" stroke="#87917d" />
+      <rect x="62" y="32" width="40" height="38" rx="2" fill="#c7d0bc" stroke="#87917d" />
+      <rect x="112" y="32" width="26" height="38" rx="2" fill="#b9a56e" stroke="#6b5a30" />
     </g>
   );
 }
 
-function ParcelaExterior({ x, y }: { x: number; y: number }) {
+function Vivero({ x, y }: { x: number; y: number }) {
   return (
-    <g transform={`translate(${x} ${y})`} className="paisaje-parcela-exterior">
-      <rect x="0" y="0" width="260" height="82" rx="4" fill="#b9ce9d" stroke="#718463" strokeWidth="1.5" />
-      <rect x="5" y="4" width="112" height="13" rx="6" fill="#f7f5e8" stroke="#c3cdb3" />
-      <text x="12" y="13" className="paisaje-parcela-titulo">ROTACIÓN A CIELO ABIERTO</text>
-      {Array.from({ length: 5 }, (_, fila) => {
-        const yFila = 27 + fila * 10;
-        return (
-          <g key={`surco-${fila}`}>
-            <path d={`M10 ${yFila + 2}h240`} stroke="#8e9b71" strokeWidth="2.2" strokeLinecap="round" />
-            {Array.from({ length: 20 }, (_, planta) => (
-              <g key={`planta-${fila}-${planta}`} transform={`translate(${16 + planta * 12} ${yFila})`}>
-                <circle r="1.7" fill="#55784b" />
-                <path d="M0 0q-2-3-3-2m3 2q2-3 3-2" fill="none" stroke="#668653" strokeWidth=".8" />
-              </g>
-            ))}
-          </g>
-        );
-      })}
-      <text x="250" y="78" textAnchor="end" className="paisaje-parcela-subtitulo">SIEMBRA ESCALONADA</text>
+    <g transform={`translate(${x} ${y})`}>
+      <rect width="170" height="80" rx="4" fill="#e0e9cd" stroke="#718463" strokeWidth="1.4" />
+      <path d="M0 4q0-4 4-4h162q4 0 4 4v16H0z" fill="#6f8858" />
+      <text x="85" y="14" textAnchor="middle" className="mapa-bloque-titulo-claro">VIVERO · COMPOSTA</text>
+      {[34, 48, 62].map((fila) => (
+        <path key={fila} d={`M12 ${fila}h100`} stroke="#879a62" strokeWidth="7" strokeDasharray="11 3" />
+      ))}
+      <rect x="124" y="30" width="36" height="38" rx="3" fill="#b8a37a" stroke="#7d6b47" />
+    </g>
+  );
+}
+
+const ETAPAS = ["RECEPCIÓN", "LAVADO", "SELECCIÓN", "EMPAQUE"];
+
+function CentroPoscosecha({ x, y }: { x: number; y: number }) {
+  return (
+    <g transform={`translate(${x} ${y})`}>
+      <rect width="330" height="134" rx="6" fill="#f7f6ee" stroke="#737b68" strokeWidth="1.6" />
+      <path d="M0 6q0-6 6-6h318q6 0 6 6v18H0z" fill="#485d4a" />
+      <text x="12" y="16" className="mapa-centro-titulo">CENTRO DE POSCOSECHA</text>
+      <text x="318" y="16" textAnchor="end" className="mapa-centro-subtitulo">FLUJO LIMPIO · 4 ETAPAS</text>
+      {ETAPAS.map((etapa, index) => (
+        <g key={etapa} transform={`translate(${6 + index * 82} 32)`}>
+          <rect width="74" height="64" rx="3" fill="#e7ecdc" stroke="#aab29e" />
+          <circle cx="10" cy="10" r="5.5" fill="#55745a" />
+          <text x="10" y="12.3" textAnchor="middle" className="mapa-etapa-numero">{index + 1}</text>
+          <text x="20" y="12.5" className="mapa-etapa-titulo">{etapa}</text>
+          <rect x="17" y="22" width="40" height="22" rx="2" fill="#d7dfc6" stroke="#93a07c" />
+          {index < 3 && <path d="M75 32l6 4-6 4z" fill="#567453" />}
+        </g>
+      ))}
+      <rect x="6" y="104" width="318" height="22" rx="3" fill="#e1e6d8" stroke="#aab29e" />
+      <text x="165" y="119" textAnchor="middle" className="mapa-etapa-detalle">ANDÉN DE CARGA · DESPACHO</text>
+    </g>
+  );
+}
+
+function Acceso({ zona }: { zona: ZonaPlano }) {
+  const cy = zona.pos_y + zona.alto / 2;
+  const alEste = zona.pos_x + zona.ancho / 2 < CAMINO_X_M;
+  const pared = alEste ? zona.pos_x + zona.ancho : zona.pos_x;
+  const xSenda = Math.min(pared, CAMINO_X_M);
+  const anchoSenda = Math.abs(CAMINO_X_M - pared);
+  return (
+    <g pointerEvents="none">
+      <rect x={xSenda} y={cy - 2.5} width={anchoSenda} height="5" fill="#e7d9b9" />
+      <rect x={pared - 0.9} y={cy - 4} width="1.8" height="8" fill="#b9a56e" stroke="#6b5a30" strokeWidth=".3" />
+    </g>
+  );
+}
+
+function BaseInvernadero({ zona }: { zona: ZonaPlano }) {
+  const { pos_x: x, pos_y: y, ancho: w, alto: h } = zona;
+  return (
+    <g className="plano-zona plano-zona-invernadero">
+      <rect x={x - ANDEN} y={y - ANDEN} width={w + ANDEN * 2} height={h + ANDEN * 2} rx="1.2" fill="#e8e4d2" stroke="#bcb69c" strokeWidth=".4" />
+      <rect x={x - 1.2} y={y - 1.2} width={w + 2.4} height={h + 2.4} rx=".6" fill="#d9d3b5" stroke="#3b5a43" strokeWidth="1" />
+    </g>
+  );
+}
+
+function TechoInvernadero({ zona }: { zona: ZonaPlano }) {
+  const { pos_x: x, pos_y: y, ancho: w, alto: h } = zona;
+  const naves = Math.max(2, Math.round(w / 24));
+  const anchoNave = w / naves;
+  return (
+    <g className="plano-techo" pointerEvents="none">
+      {Array.from({ length: naves }, (_, i) => (
+        <g key={`${zona.codigo}-nave-${i}`}>
+          <rect x={x + i * anchoNave} y={y} width={anchoNave} height={h} fill="#ffffff" opacity={i % 2 ? 0.1 : 0.16} />
+          <path d={`M${x + i * anchoNave + anchoNave / 2} ${y + 0.8}V${y + h - 0.8}`} stroke="#4f7457" strokeWidth=".4" strokeDasharray="2.4 1.2" opacity=".6" />
+        </g>
+      ))}
+      {Array.from({ length: naves - 1 }, (_, i) => (
+        <rect key={`${zona.codigo}-canaleta-${i}`} x={x + (i + 1) * anchoNave - 0.35} y={y} width=".7" height={h} fill="#8fa7a8" opacity=".75" />
+      ))}
+      <path d={`M${x + 0.8} ${y + 1.1}h${w - 1.6}M${x + 0.8} ${y + h - 1.1}h${w - 1.6}`} stroke="#4f7a5a" strokeWidth=".55" strokeDasharray="1.2 .6" opacity=".65" />
+      <Acceso zona={zona} />
+    </g>
+  );
+}
+
+function CampoAbierto({ zona }: { zona: ZonaPlano }) {
+  const { pos_x: x, pos_y: y, ancho: w, alto: h } = zona;
+  const surcos = Array.from({ length: Math.floor(h / 3.5) }, (_, i) => y + 1.75 + i * 3.5);
+  return (
+    <g className="plano-zona plano-zona-campo">
+      <rect x={x - 1.5} y={y - 1.5} width={w + 3} height={h + 3} rx="1" fill="#d8cf9e" />
+      {surcos.map((s) => (
+        <path key={`${zona.codigo}-surco-${s}`} d={`M${x + 1.5} ${s}H${x + w - 1.5}`} stroke="#6f9a55" strokeWidth=".9" strokeLinecap="round" strokeDasharray="0.01 2.4" opacity=".8" />
+      ))}
+      <rect x={x - 1.5} y={y - 1.5} width={w + 3} height={h + 3} rx="1" fill="none" stroke="#7d6f3f" strokeWidth=".35" />
+      <rect x={x - 1.5} y={y - 1.5} width={w + 3} height={h + 3} rx="1" fill="none" stroke="#7d6f3f" strokeWidth="1.3" strokeDasharray="0.01 5" />
+      <Acceso zona={zona} />
+    </g>
+  );
+}
+
+function EtiquetaZona({ zona, onEntrar }: { zona: ZonaPlano; onEntrar: (codigo: string) => void }) {
+  const campo = tipoDeZona(zona) === "campo_abierto";
+  const texto = `${campo ? "CAMPO" : "INVERNADERO"} ${zona.codigo} · ENTRAR`;
+  const ancho = texto.length * 2.7 + 5;
+  const y = zona.pos_y - 10.5;
+  return (
+    <g
+      className="plano-invernadero-control"
+      role="button"
+      tabIndex={0}
+      aria-label={`Entrar a ${campo ? "campo abierto" : "invernadero"} ${zona.codigo}`}
+      onClick={(event) => { event.stopPropagation(); onEntrar(zona.codigo); }}
+      onKeyDown={(event) => {
+        if (event.key === "Enter" || event.key === " ") {
+          event.preventDefault();
+          onEntrar(zona.codigo);
+        }
+      }}
+    >
+      <rect x={zona.pos_x - 2} y={y} width={ancho} height="6.5" rx="1.4" fill="#fffef8" stroke="#6b8066" strokeWidth=".45" />
+      <text x={zona.pos_x + 0.5} y={y + 4.6} className="plano-zona-etiqueta">{texto}</text>
     </g>
   );
 }
@@ -340,8 +350,14 @@ export function PlanoSvg({
     }
   }
 
+  const claseWrap = [
+    "plano-svg-wrap",
+    modoEdicion ? "modo-edicion" : "",
+    zoomPan.zoom < ZOOM_DETALLE ? "zoom-bajo" : "",
+  ].filter(Boolean).join(" ");
+
   return (
-    <div className={`plano-svg-wrap${modoEdicion ? " modo-edicion" : ""}`}>
+    <div className={claseWrap}>
       <svg
         ref={svgRef}
         className="plano-svg"
@@ -373,140 +389,54 @@ export function PlanoSvg({
         </defs>
 
         <g transform={`translate(${zoomPan.pan.x} ${zoomPan.pan.y}) scale(${zoomPan.zoom})`}>
-        <rect width={ANCHO_PLANO} height={ALTO_PLANO} fill="#e8e7dc" />
-        <rect x="22" y="24" width="956" height="524" rx="8" fill="#edf0e3" stroke="#4e6651" strokeWidth="2" />
-        <rect x="31" y="33" width="938" height="502" rx="4" fill="none" stroke="#a3ad97" strokeWidth=".8" strokeDasharray="3 4" />
-        <path d="M32 414h936" stroke="#b6c1a9" strokeWidth="1.2" strokeDasharray="3 5" />
-        <g transform="translate(48 52)">
-          <text className="paisaje-plano-kicker">FINCA SANTANDERSITO</text>
-          <text y="17" className="paisaje-plano-subtitulo">UNIDAD DE PRODUCCIÓN · PLANO GENERAL</text>
-        </g>
-        <g transform="translate(835 51)">
-          <rect width="111" height="28" rx="4" fill="#e1e8d8" stroke="#bdc8b3" />
-          <circle cx="13" cy="14" r="4" fill="#5c7652" />
-          <text x="23" y="12" className="paisaje-plano-dato">25 CAMAS</text>
-          <text x="23" y="21" className="paisaje-plano-dato-secundario">3 INVERNADEROS</text>
+        <rect width={ANCHO_PLANO} height={ALTO_PLANO} fill="#e6e8dc" />
+        <rect x="16" y="16" width="968" height="618" rx="8" fill="#f4f5ec" stroke="#4e6651" strokeWidth="2" />
+
+        <g transform="translate(48 40)">
+          <text className="mapa-kicker">FINCA SANTANDERCITO</text>
+          <text y="14" className="mapa-subtitulo">UNIDAD DE PRODUCCIÓN · PLANO GENERAL</text>
         </g>
 
-        <g className="paisaje-arboleda">
-          {ARBOLES.map(([x, y, escala], index) => (
-            <Arbol key={`arbol-${index}`} x={x} y={y} escala={escala} />
+        <g className="mapa-arboleda">
+          {ARBOLES_X.map((x) => (
+            <Arbol key={`arbol-${x}`} x={x} y={40} />
           ))}
         </g>
 
-        <g className="paisaje-camino">
-          <path d="M22 394h673v-31" fill="none" stroke="#a89067" strokeWidth="19" strokeLinecap="round" strokeLinejoin="round" />
-          <path d="M22 394h673v-31" fill="none" stroke="#e7d9b9" strokeWidth="13" strokeLinecap="round" strokeLinejoin="round" />
-          <path d="M24 394h669v-29" fill="none" stroke="#bca87c" strokeWidth="1" strokeDasharray="6 8" />
-          <path d="M199 394v-129m301 129v-43" fill="none" stroke="#a89067" strokeWidth="13" strokeLinecap="round" />
-          <path d="M199 394v-129m301 129v-43" fill="none" stroke="#e7d9b9" strokeWidth="8" strokeLinecap="round" />
-          <path d="M695 363h44" fill="none" stroke="#a89067" strokeWidth="13" strokeLinecap="round" />
-          <path d="M695 363h44" fill="none" stroke="#e7d9b9" strokeWidth="8" strokeLinecap="round" />
-          <path d="M21 394h35" fill="none" stroke="#52684e" strokeWidth="4" />
-          <path d="M34 384v20m9-20v20" stroke="#52684e" strokeWidth="2" />
+        <g className="mapa-rio">
+          <path d="M962 22C948 110 978 200 962 300S946 480 962 628" fill="none" stroke="#d4e0d1" strokeWidth="20" strokeLinecap="round" />
+          <path d="M962 22C948 110 978 200 962 300S946 480 962 628" fill="none" stroke="url(#plano-rio)" strokeWidth="13" strokeLinecap="round" />
         </g>
 
-        <g className="paisaje-rio">
-          <path d="M958 86q-18 50 0 94t-2 89 2 93-2 95 2 90" fill="none" stroke="#d4e0d1" strokeWidth="20" strokeLinecap="round" />
-          <path d="M958 86q-18 50 0 94t-2 89 2 93-2 95 2 90" fill="none" stroke="url(#plano-rio)" strokeWidth="13" strokeLinecap="round" />
-          <path d="M958 88q-13 48 1 91t-2 89 2 94-2 94 2 88" fill="none" stroke="#dcebe3" strokeWidth="1.2" strokeLinecap="round" strokeDasharray="4 7" />
+        <g className="mapa-camino">
+          <path d={`M24 458H890M${CAMINO_INTERNO_X} 84V458`} fill="none" stroke="#a89067" strokeWidth="16" strokeLinecap="round" strokeLinejoin="round" />
+          <path d={`M24 458H890M${CAMINO_INTERNO_X} 84V458`} fill="none" stroke="#e7d9b9" strokeWidth="10" strokeLinecap="round" strokeLinejoin="round" />
+          <path d="M21 458h35" fill="none" stroke="#52684e" strokeWidth="4" />
+          <path d="M34 448v20m9-20v20" stroke="#52684e" strokeWidth="2" />
         </g>
 
-        <g className="paisaje-acueducto">
-          <path d="M906 112q15 3 12 31v266h-90" fill="none" stroke="#789d98" strokeWidth="3.5" strokeDasharray="7 4" />
-          <path d="M828 409H664v-15m-164 15v-68m-300 68v-152" fill="none" stroke="#789d98" strokeWidth="3.5" strokeDasharray="7 4" />
-          <circle cx="664" cy="409" r="4" fill="#edf0e3" stroke="#668b84" strokeWidth="1.5" />
-          <circle cx="500" cy="409" r="3" fill="#edf0e3" stroke="#668b84" strokeWidth="1.2" />
-          <circle cx="200" cy="409" r="3" fill="#edf0e3" stroke="#668b84" strokeWidth="1.2" />
+        <g className="mapa-canal">
+          <path d="M952 112H936M908 132V476H408" fill="none" stroke="#6f9c97" strokeWidth="3" strokeDasharray="7 4" />
         </g>
 
-        <g className="paisaje-tanques">
+        <g className="mapa-tanques">
+          <text x="868" y="88" className="mapa-etiqueta">RESERVA DE AGUA</text>
           {[0, 1, 2].map((i) => (
-            <g key={`tanque-${i}`} transform={`translate(${820 + i * 31} 91)`}>
-              <ellipse cx="12" cy="28" rx="12" ry="4" fill="#7e9d99" />
-              <rect x="0" y="5" width="24" height="23" fill="#d6e0d6" stroke="#66827a" strokeWidth="1.2" />
-              <ellipse cx="12" cy="5" rx="12" ry="4" fill="#eff2e8" stroke="#66827a" strokeWidth="1.2" />
-              <ellipse cx="12" cy="28" rx="12" ry="4" fill="#a9c2b9" stroke="#66827a" strokeWidth="1" />
-              <path d="M5 8v16m14-16v16" stroke="#8ba89d" strokeWidth="1" />
-            </g>
+            <Tanque key={`tanque-${i}`} x={868 + i * 28} y={96} />
           ))}
-          <text x="855" y="83" textAnchor="middle" className="paisaje-infra-label">RESERVA DE AGUA</text>
         </g>
 
-        <g transform={`translate(${ORIGEN_PARCELAS.x} ${ORIGEN_PARCELAS.y}) scale(${ESCALA_METROS})`} className="plano-parcelas">
-          {zonas.map((zona) => (
-            <g key={zona.codigo} className="plano-zona">
-              <rect
-                x={zona.pos_x - 2}
-                y={zona.pos_y - 2}
-                width={zona.ancho + 4}
-                height={zona.alto + 4}
-                rx="1.2"
-                fill={tipoDeZona(zona) === "campo_abierto" ? "#e1e9c2" : "#dbe7d4"}
-                stroke={tipoDeZona(zona) === "campo_abierto" ? "#8a7a4a" : "#536f58"}
-                strokeWidth="1.1"
-                strokeDasharray={
-                  tipoDeZona(zona) === "campo_abierto" ? "2.4 1.4" : undefined
-                }
-              />
-              <rect
-                x={zona.pos_x - 2}
-                y={zona.pos_y - 2}
-                width={zona.ancho + 4}
-                height={zona.alto + 4}
-                rx="1.2"
-                fill="url(#plano-cubierta)"
-                pointerEvents="none"
-              />
-              {Array.from(
-                { length: Math.floor((zona.ancho + 4) / 24) + 1 },
-                (_, index) => zona.pos_x - 2 + index * 24,
-              ).map((x) => (
-                <path
-                  key={`${zona.codigo}-costilla-${x}`}
-                  d={`M${x} ${zona.pos_y - 1.5}v${zona.alto + 3}`}
-                  fill="none"
-                  stroke="#79927d"
-                  strokeOpacity=".65"
-                  strokeWidth=".65"
-                  pointerEvents="none"
-                />
-              ))}
-              <path
-                d={`M${zona.pos_x} ${zona.pos_y + zona.alto / 2}h${zona.ancho}M${zona.pos_x + zona.ancho / 2} ${zona.pos_y}v${zona.alto}`}
-                fill="none"
-                stroke="#718a73"
-                strokeOpacity=".4"
-                strokeWidth=".65"
-                pointerEvents="none"
-              />
-              <path
-                d={`M${zona.pos_x + 2} ${zona.pos_y + 2}h${zona.ancho - 4}M${zona.pos_x + 2} ${zona.pos_y + zona.alto - 2}h${zona.ancho - 4}`}
-                fill="none"
-                stroke="#55734f"
-                strokeWidth=".75"
-                pointerEvents="none"
-              />
-              <path
-                d={`M${zona.pos_x + zona.ancho / 2 - 3} ${zona.pos_y + zona.alto + 2}v-3h6v3`}
-                fill="#f3f0e2"
-                stroke="#536f58"
-                strokeWidth=".55"
-                pointerEvents="none"
-              />
-              <rect
-                x={zona.pos_x}
-                y={zona.pos_y}
-                width={zona.ancho}
-                height={zona.alto}
-                rx=".8"
-                fill="none"
-                stroke="#70866b"
-                strokeWidth=".5"
-                pointerEvents="none"
-              />
-            </g>
-          ))}
+        <g
+          transform={`translate(${ORIGEN_PARCELAS.x} ${ORIGEN_PARCELAS.y}) scale(${ESCALA_METROS})`}
+          className="plano-parcelas"
+        >
+          {zonas.map((zona) =>
+            tipoDeZona(zona) === "campo_abierto" ? (
+              <CampoAbierto key={zona.codigo} zona={zona} />
+            ) : (
+              <BaseInvernadero key={zona.codigo} zona={zona} />
+            ),
+          )}
           {camas.map((cama) => (
             <CamaShape
               key={cama.codigo}
@@ -516,69 +446,33 @@ export function PlanoSvg({
               onVerDetalle={onVerDetalle}
             />
           ))}
+          {zonas
+            .filter((zona) => tipoDeZona(zona) !== "campo_abierto")
+            .map((zona) => (
+              <TechoInvernadero key={`techo-${zona.codigo}`} zona={zona} />
+            ))}
           {zonas.map((zona) => (
-            <g
-              key={`invernadero-control-${zona.codigo}`}
-              className="plano-invernadero-control"
-              role="button"
-              tabIndex={0}
-              aria-label={`Entrar a ${
-                tipoDeZona(zona) === "campo_abierto"
-                  ? "campo abierto"
-                  : "invernadero"
-              } ${zona.codigo}`}
-              onClick={(event) => {
-                event.stopPropagation();
-                onEntrarZona(zona.codigo);
-              }}
-              onKeyDown={(event) => {
-                if (event.key === "Enter" || event.key === " ") {
-                  event.preventDefault();
-                  onEntrarZona(zona.codigo);
-                }
-              }}
-            >
-              <rect
-                x={zona.pos_x + 1}
-                y={zona.pos_y + 1}
-                width="72"
-                height="7"
-                rx="1.4"
-                fill="#f4f2e7"
-                stroke="#6b8066"
-                strokeWidth=".45"
-              />
-              <text x={zona.pos_x + 4} y={zona.pos_y + 5.2} className="plano-zona-etiqueta">
-                {tipoDeZona(zona) === "campo_abierto" ? "CAMPO" : "INVERNADERO"}{" "}
-                {zona.codigo} · ENTRAR
-              </text>
-            </g>
+            <EtiquetaZona key={`etiqueta-${zona.codigo}`} zona={zona} onEntrar={onEntrarZona} />
           ))}
         </g>
 
-        <g className="paisaje-infraestructura">
-          <CentroPoscosecha x={700} y={178} />
-          <Bodega x={724} y={458} />
-          <ParcelaExterior x={112} y={438} />
-          <g transform="translate(425 495)">
-            <rect x="0" y="0" width="126" height="42" rx="4" fill="#d7e1c4" stroke="#718463" strokeWidth="1.2" />
-            <path d="M8 28h110M14 13v20m14-20v20m14-20v20m14-20v20m14-20v20m14-20v20m14-20v20" stroke="#879a62" strokeWidth="1.5" />
-            <path d="M7 11h112" stroke="#f2f1d8" strokeWidth="2" />
-            <text x="63" y="8" textAnchor="middle" className="paisaje-etiqueta">VIVERO · COMPOSTA</text>
-          </g>
-          <text x="48" y="423" className="paisaje-infra-label">ACCESO DE SERVICIO</text>
-          <text x="700" y="429" className="paisaje-infra-label">CANAL DE RIEGO PRINCIPAL</text>
+        <g className="mapa-infraestructura">
+          <text x="44" y="482" className="mapa-etiqueta">ACCESO DE SERVICIO</text>
+          <Vivero x={40} y={490} />
+          <Bodega x={230} y={490} />
+          <CentroPoscosecha x={410} y={490} />
+          <text x="756" y="494" className="mapa-etiqueta">CANAL DE RIEGO PRINCIPAL</text>
         </g>
 
-        <g className="paisaje-señaletica">
-          <g transform="translate(918 526)">
-            <path d="M0 13V-13m0 0-5 8m5-8 5 8" stroke="#42624b" strokeWidth="2" strokeLinecap="round" />
-            <text y="-20" textAnchor="middle" className="paisaje-infra-label">N</text>
+        <g className="mapa-senaletica">
+          <g transform="translate(938 590)">
+            <path d="M0 12V-12M0-12-5-4M0-12 5-4" fill="none" stroke="#42624b" strokeWidth="2" strokeLinecap="round" />
+            <text y="-18" textAnchor="middle" className="mapa-etiqueta">N</text>
           </g>
-          <g transform="translate(52 534)">
-            <path d="M0 0h100" stroke="#465b47" strokeWidth="2.5" />
-            <path d="M0-4v8m50-4v4m50-4v8" stroke="#465b47" strokeWidth="1.5" />
-            <text x="50" y="-8" textAnchor="middle" className="paisaje-escala">REFERENCIA · 50 m</text>
+          <g transform="translate(756 606)">
+            <path d="M0 0h175" stroke="#465b47" strokeWidth="2.5" />
+            <path d="M0-4v8M87.5-3v3M175-4v8" stroke="#465b47" strokeWidth="1.5" />
+            <text x="87.5" y="-8" textAnchor="middle" className="mapa-etiqueta">50 m</text>
           </g>
         </g>
 
