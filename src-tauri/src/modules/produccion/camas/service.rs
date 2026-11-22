@@ -12,7 +12,7 @@ use crate::{
 
 use super::{
     dto::{ActualizarCama, FiltroCamas},
-    models::Cama,
+    models::{Cama, ResumenCama},
     repository,
 };
 
@@ -30,6 +30,23 @@ fn validar_estado(estado: &str) -> AppResult<&'static str> {
                 ESTADOS.join(", ")
             ))
         })
+}
+
+const TRANSICIONES_MANUALES: [(&str, &str); 4] = [
+    ("cosechada", "en_descanso"),
+    ("cosechada", "disponible"),
+    ("en_descanso", "disponible"),
+    ("disponible", "en_descanso"),
+];
+
+fn validar_transicion(actual: &str, nuevo: &str) -> AppResult<()> {
+    if actual == nuevo || TRANSICIONES_MANUALES.contains(&(actual, nuevo)) {
+        return Ok(());
+    }
+    Err(AppError::Validacion(format!(
+        "No se puede pasar una cama de '{actual}' a '{nuevo}' manualmente. \
+         El estado 'sembrada' se gestiona con siembras y cosechas"
+    )))
 }
 
 fn normalizar_codigo(codigo: &str) -> AppResult<String> {
@@ -82,18 +99,48 @@ pub async fn actualizar(
         ));
     }
 
-    repository::actualizar(db, &codigo, estado, observaciones, gestor.as_str())
+    let mut tx = db.begin().await?;
+    let actual = repository::obtener_por_codigo_para_actualizar(&mut tx, &codigo)
         .await?
-        .ok_or_else(|| AppError::NoEncontrado(format!("La cama {codigo} no existe")))
+        .ok_or_else(|| AppError::NoEncontrado(format!("La cama {codigo} no existe")))?;
+    if let Some(nuevo) = estado {
+        validar_transicion(&actual.estado, nuevo)?;
+    }
+    let cama = repository::actualizar(&mut *tx, &codigo, estado, observaciones, gestor.as_str())
+        .await?
+        .ok_or_else(|| AppError::NoEncontrado(format!("La cama {codigo} no existe")))?;
+    tx.commit().await?;
+    Ok(cama)
 }
 
 pub async fn contar_por_zona(db: &PgPool) -> AppResult<HashMap<String, i64>> {
     Ok(repository::contar_por_zona(db).await?.into_iter().collect())
 }
 
+pub async fn resumen(db: &PgPool, codigo: &str) -> AppResult<ResumenCama> {
+    let codigo = normalizar_codigo(codigo)?;
+    let cama = repository::obtener(db, &codigo)
+        .await?
+        .ok_or_else(|| AppError::NoEncontrado(format!("La cama {codigo} no existe")))?;
+
+    let siembra_activa = repository::siembra_activa_de_cama(db, cama.id).await?;
+    let tallos_siembra_activa = match &siembra_activa {
+        Some(siembra) => repository::tallos_de_siembra(db, siembra.id).await?,
+        None => 0,
+    };
+    let ultima_cosecha = repository::ultima_cosecha_de_cama(db, cama.id).await?;
+
+    Ok(ResumenCama {
+        cama,
+        siembra_activa,
+        tallos_siembra_activa,
+        ultima_cosecha,
+    })
+}
+
 #[cfg(test)]
 mod tests {
-    use super::{ESTADOS, validar_estado};
+    use super::{ESTADOS, validar_estado, validar_transicion};
 
     #[test]
     fn acepta_estados_de_cama_y_rechaza_otros() {
@@ -101,5 +148,14 @@ mod tests {
             assert_eq!(validar_estado(estado).unwrap(), estado);
         }
         assert!(validar_estado("ocupada").is_err());
+    }
+
+    #[test]
+    fn transiciones_manuales() {
+        assert!(validar_transicion("cosechada", "en_descanso").is_ok());
+        assert!(validar_transicion("en_descanso", "disponible").is_ok());
+        assert!(validar_transicion("sembrada", "sembrada").is_ok());
+        assert!(validar_transicion("disponible", "sembrada").is_err());
+        assert!(validar_transicion("sembrada", "disponible").is_err());
     }
 }

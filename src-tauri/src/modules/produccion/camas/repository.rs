@@ -1,6 +1,6 @@
 use sqlx::PgExecutor;
 
-use super::models::Cama;
+use super::models::{Cama, CosechaResumen, SiembraResumen};
 
 const COLUMNAS: &str = "id, codigo, zona, numero, estado, observaciones, actualizado_en";
 
@@ -27,6 +27,18 @@ pub async fn obtener(db: impl PgExecutor<'_>, codigo: &str) -> Result<Option<Cam
     ))
     .bind(codigo)
     .fetch_optional(db)
+    .await
+}
+
+pub async fn obtener_por_codigo_para_actualizar(
+    conn: &mut sqlx::PgConnection,
+    codigo: &str,
+) -> Result<Option<Cama>, sqlx::Error> {
+    sqlx::query_as::<_, Cama>(&format!(
+        "SELECT {COLUMNAS} FROM produccion.cama WHERE codigo = $1 FOR UPDATE"
+    ))
+    .bind(codigo)
+    .fetch_optional(conn)
     .await
 }
 
@@ -88,6 +100,48 @@ pub async fn cambiar_estado_por_id(
     .bind(id)
     .bind(estado)
     .bind(actor)
+    .fetch_optional(db)
+    .await
+}
+
+pub async fn siembra_activa_de_cama(
+    db: impl PgExecutor<'_>,
+    cama_id: i32,
+) -> Result<Option<SiembraResumen>, sqlx::Error> {
+    sqlx::query_as::<_, SiembraResumen>(
+        "SELECT id, cama_id, fecha_siembra, fecha_estimada_cosecha, plantas_sembradas
+         FROM produccion.siembra
+         WHERE cama_id = $1 AND estado = 'activa'",
+    )
+    .bind(cama_id)
+    .fetch_optional(db)
+    .await
+}
+
+pub async fn tallos_de_siembra(
+    db: impl PgExecutor<'_>,
+    siembra_id: i32,
+) -> Result<i64, sqlx::Error> {
+    sqlx::query_scalar::<_, i64>(
+        "SELECT COALESCE(SUM(tallos), 0)::bigint FROM produccion.cosecha WHERE siembra_id = $1",
+    )
+    .bind(siembra_id)
+    .fetch_one(db)
+    .await
+}
+
+pub async fn ultima_cosecha_de_cama(
+    db: impl PgExecutor<'_>,
+    cama_id: i32,
+) -> Result<Option<CosechaResumen>, sqlx::Error> {
+    sqlx::query_as::<_, CosechaResumen>(
+        "SELECT id, fecha, tallos, calidad, lote_id
+         FROM produccion.cosecha
+         WHERE cama_id = $1
+         ORDER BY fecha DESC, id DESC
+         LIMIT 1",
+    )
+    .bind(cama_id)
     .fetch_optional(db)
     .await
 }

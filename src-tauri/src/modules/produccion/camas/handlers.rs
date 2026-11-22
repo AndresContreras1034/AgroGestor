@@ -8,14 +8,22 @@ use crate::{errors::AppResult, state::AppState, types::gestor::GestorActivo};
 
 use super::{
     dto::{ActualizarCama, FiltroCamas},
-    models::Cama,
+    models::{Cama, ResumenCama},
     service,
 };
 
 pub fn rutas() -> Router<AppState> {
     Router::new()
         .route("/", get(listar))
+        .route("/{codigo}/resumen", get(resumen))
         .route("/{codigo}", get(obtener).patch(actualizar))
+}
+
+async fn resumen(
+    State(state): State<AppState>,
+    Path(codigo): Path<String>,
+) -> AppResult<Json<ResumenCama>> {
+    Ok(Json(service::resumen(&state.db, &codigo).await?))
 }
 
 async fn listar(
