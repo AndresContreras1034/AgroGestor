@@ -58,3 +58,36 @@ pub async fn contar_por_zona(db: impl PgExecutor<'_>) -> Result<Vec<(String, i64
         .fetch_all(db)
         .await
 }
+
+/// Lee la cama y bloquea la fila hasta el fin de la transacción.
+/// Debe llamarse dentro de una transacción (`&mut *tx`).
+pub async fn obtener_por_id_para_actualizar(
+    conn: &mut sqlx::PgConnection,
+    id: i32,
+) -> Result<Option<Cama>, sqlx::Error> {
+    sqlx::query_as::<_, Cama>(&format!(
+        "SELECT {COLUMNAS} FROM produccion.cama WHERE id = $1 FOR UPDATE"
+    ))
+    .bind(id)
+    .fetch_optional(conn)
+    .await
+}
+
+/// Cambia solo el estado de la cama. El estado ya debe venir validado.
+pub async fn cambiar_estado_por_id(
+    db: impl PgExecutor<'_>,
+    id: i32,
+    estado: &str,
+    actor: &str,
+) -> Result<Option<Cama>, sqlx::Error> {
+    sqlx::query_as::<_, Cama>(&format!(
+        "UPDATE produccion.cama SET estado = $2, actualizado_por = $3
+         WHERE id = $1
+         RETURNING {COLUMNAS}"
+    ))
+    .bind(id)
+    .bind(estado)
+    .bind(actor)
+    .fetch_optional(db)
+    .await
+}
