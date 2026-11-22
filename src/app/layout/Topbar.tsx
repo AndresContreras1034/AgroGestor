@@ -26,7 +26,7 @@ export function Topbar() {
         <span className="topbar-group">{context.group}</span>
         <span className="topbar-separator" aria-hidden="true">/</span>
         <strong className="topbar-module">{context.label}</strong>
-        <span className="topbar-farm">Finca Santandersito · 25 camas</span>
+        <span className="topbar-farm">Finca Santandercito · 25 camas</span>
       </div>
       <span className={`connection-status ${connectionState}`} role="status" aria-live="polite">
         {connectionLabel}

@@ -331,7 +331,7 @@
   display: block;
   width: 100%;
   height: auto;
-  aspect-ratio: 1000 / 570;
+  aspect-ratio: 1000 / 480;
   overflow: hidden;
   border-radius: 6px;
   touch-action: none;
@@ -553,6 +553,16 @@
   background: #73935c;
 }
 
+.plano-muestra-invernadero {
+  border: 1px solid #536f58;
+  background: #dbe7d4;
+}
+
+.plano-muestra-campo {
+  border: 1px dashed #8a7a4a;
+  background: #e1e9c2;
+}
+
 .plano-muestra-rio {
   background: #65a8a6;
 }
@@ -691,6 +701,11 @@
 
 .plano-zona-muestra {
   background: #78946a;
+}
+
+.plano-zona-muestra.campo {
+  border: 1px dashed #8a7a4a;
+  background: #e1e9c2;
 }
 
 .plano-instalaciones {

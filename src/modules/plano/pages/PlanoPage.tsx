@@ -9,6 +9,7 @@ import { PlanoSvg } from "../components/PlanoSvg";
 import { useZoomPan } from "../hooks/useZoomPan";
 import { guardarPosicionCama, obtenerPlano } from "../services/plano.service";
 import type { CamaPlano, Plano } from "../types/plano";
+import { encuadreZona, etiquetaZona } from "../utils/planoGeometria";
 import { crearPlanoReferencia } from "../utils/planoReferencia";
 import "./plano.css";
 
@@ -85,6 +86,7 @@ export function PlanoPage() {
   const camaActiva =
     camasVisibles.find((cama) => cama.codigo === camaSeleccionada) ?? null;
   const zonaActiva = plano.zonas.find((zona) => zona.codigo === camaActiva?.zona);
+  const zonaFiltrada = plano.zonas.find((zona) => zona.codigo === zonaFiltro);
   const superficieVisible = camasVisibles.reduce(
     (total, cama) => total + cama.ancho * cama.alto,
     0,
@@ -114,11 +116,8 @@ export function PlanoPage() {
         return;
       }
       setZonaFiltro(codigo);
-      zoomPan.enfocar(
-        { x: 82 + (zona.pos_x + zona.ancho / 2) * 2.45, y: 135 + (zona.pos_y + zona.alto / 2) * 2.45 },
-        (zona.ancho + 8) * 2.45,
-        (zona.alto + 16) * 2.45,
-      );
+      const encuadre = encuadreZona(zona);
+      zoomPan.enfocar(encuadre.centro, encuadre.ancho, encuadre.alto);
       setCamaSeleccionada(
         plano.camas.find((cama) => cama.zona === codigo)?.codigo ?? null,
       );
@@ -210,9 +209,9 @@ export function PlanoPage() {
           <span className="plano-eyebrow">Distribución de la finca</span>
           <h1>Plano de camas</h1>
           <p>
-            {zonaFiltro === "todas"
-              ? `${camasVisibles.length} camas · ${superficieVisible.toLocaleString("es-CO")} m² cultivables · esquema visual de la finca`
-              : `${camasVisibles.length} camas · ${superficieVisible.toLocaleString("es-CO")} m² en el invernadero`}
+            {zonaFiltrada
+              ? `${camasVisibles.length} camas · ${superficieVisible.toLocaleString("es-CO")} m² en ${etiquetaZona(zonaFiltrada).toLowerCase()}`
+              : `${camasVisibles.length} camas · ${superficieVisible.toLocaleString("es-CO")} m² cultivables · ${plano.zonas.length} áreas de cultivo`}
           </p>
         </div>
         <Button onClick={() => void cargar()} disabled={cargando || guardando}>
@@ -250,7 +249,7 @@ export function PlanoPage() {
                 <option value="todas">Vista general</option>
                 {plano.zonas.map((zona) => (
                   <option key={zona.codigo} value={zona.codigo}>
-                    Invernadero {zona.codigo} ·{" "}
+                    {etiquetaZona(zona)} ·{" "}
                     {plano.camas.filter((cama) => cama.zona === zona.codigo).length} camas
                   </option>
                 ))}
@@ -290,8 +289,16 @@ export function PlanoPage() {
 
           <footer className="plano-leyenda" aria-label="Información del plano">
             <span>
+              <i className="plano-muestra-invernadero" />
+              Invernadero
+            </span>
+            <span>
+              <i className="plano-muestra-campo" />
+              Campo abierto
+            </span>
+            <span>
               <i className="plano-muestra-cama" />
-              Cama agrícola de 250 m²
+              Cama de cultivo
             </span>
             <span>
               <i className="plano-muestra-rio" />
@@ -348,8 +355,12 @@ export function PlanoPage() {
                       : enfocarZona(zona.codigo)
                   }
                 >
-                  <i className="plano-zona-muestra" />
-                  <span>Invernadero {zona.codigo}</span>
+                  <i
+                    className={`plano-zona-muestra${
+                      zona.tipo === "campo_abierto" ? " campo" : ""
+                    }`}
+                  />
+                  <span>{etiquetaZona(zona)}</span>
                   <strong>
                     {camasZona.length} camas · {superficieZona.toLocaleString("es-CO")} m²
                   </strong>

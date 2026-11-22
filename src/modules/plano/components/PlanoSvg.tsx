@@ -3,11 +3,13 @@ import type { PointerEvent as ReactPointerEvent } from "react";
 import { CamaShape } from "./CamaShape";
 import type { CamaPlano, ZonaPlano } from "../types/plano";
 import type { useZoomPan } from "../hooks/useZoomPan";
-
-const ANCHO_PLANO = 1000;
-const ALTO_PLANO = 570;
-const ESCALA_METROS = 2.45;
-const ORIGEN_PARCELAS = { x: 82, y: 135 };
+import {
+  ALTO_PLANO,
+  ANCHO_PLANO,
+  ESCALA_METROS,
+  ORIGEN_PARCELAS,
+  tipoDeZona,
+} from "../utils/planoGeometria";
 
 const ARBOLES = [
   [52, 94, 1],
@@ -346,7 +348,7 @@ export function PlanoSvg({
         viewBox={`0 0 ${ANCHO_PLANO} ${ALTO_PLANO}`}
         preserveAspectRatio="xMidYMid meet"
         role="group"
-        aria-label="Plano ilustrado de la finca Santandersito"
+        aria-label="Plano ilustrado de la finca Santandercito"
         onPointerDown={iniciarGesto}
         onPointerMove={moverPuntero}
         onPointerUp={terminarGesto}
@@ -440,9 +442,12 @@ export function PlanoSvg({
                 width={zona.ancho + 4}
                 height={zona.alto + 4}
                 rx="1.2"
-                fill="#dbe7d4"
-                stroke="#536f58"
+                fill={tipoDeZona(zona) === "campo_abierto" ? "#e1e9c2" : "#dbe7d4"}
+                stroke={tipoDeZona(zona) === "campo_abierto" ? "#8a7a4a" : "#536f58"}
                 strokeWidth="1.1"
+                strokeDasharray={
+                  tipoDeZona(zona) === "campo_abierto" ? "2.4 1.4" : undefined
+                }
               />
               <rect
                 x={zona.pos_x - 2}
@@ -517,7 +522,11 @@ export function PlanoSvg({
               className="plano-invernadero-control"
               role="button"
               tabIndex={0}
-              aria-label={`Entrar al invernadero ${zona.codigo}`}
+              aria-label={`Entrar a ${
+                tipoDeZona(zona) === "campo_abierto"
+                  ? "campo abierto"
+                  : "invernadero"
+              } ${zona.codigo}`}
               onClick={(event) => {
                 event.stopPropagation();
                 onEntrarZona(zona.codigo);
@@ -540,7 +549,8 @@ export function PlanoSvg({
                 strokeWidth=".45"
               />
               <text x={zona.pos_x + 4} y={zona.pos_y + 5.2} className="plano-zona-etiqueta">
-                INVERNADERO {zona.codigo} · ENTRAR
+                {tipoDeZona(zona) === "campo_abierto" ? "CAMPO" : "INVERNADERO"}{" "}
+                {zona.codigo} · ENTRAR
               </text>
             </g>
           ))}

@@ -1,5 +1,7 @@
 import type { EstadoCama } from "../../../shared/types/cama";
 
+export type TipoZona = "invernadero" | "campo_abierto";
+
 export interface ZonaPlano {
   codigo: string;
   nombre: string;
@@ -8,6 +10,7 @@ export interface ZonaPlano {
   pos_y: number;
   ancho: number;
   alto: number;
+  tipo?: TipoZona;
 }
 
 export interface CamaPlano {
