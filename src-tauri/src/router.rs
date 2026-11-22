@@ -32,7 +32,14 @@ pub async fn serve() -> Result<(), Box<dyn std::error::Error + Send + Sync>> {
             HeaderValue::from_static("http://tauri.localhost"),
             HeaderValue::from_static("https://tauri.localhost"),
         ])
-        .allow_methods([Method::GET, Method::POST, Method::PATCH, Method::OPTIONS])
+        .allow_methods([
+            Method::GET,
+            Method::POST,
+            Method::PUT,
+            Method::PATCH,
+            Method::DELETE,
+            Method::OPTIONS,
+        ])
         .allow_headers([
             axum::http::header::CONTENT_TYPE,
             axum::http::HeaderName::from_static("x-gestor"),
