@@ -3,6 +3,10 @@ import { AppLayout } from "../layout/AppLayout";
 import { DashboardPage } from "../../modules/dashboard/pages/DashboardPage";
 import { ModulePage } from "../../shared/ui/ModulePage";
 import { CamasPage } from "../../modules/produccion/pages/CamasPage";
+import { SiembrasPage } from "../../modules/produccion/pages/SiembrasPage";
+import { LaboresPage } from "../../modules/produccion/pages/LaboresPage";
+import { CosechasPage } from "../../modules/produccion/pages/CosechasPage";
+import { LotesPage } from "../../modules/produccion/pages/LotesPage";
 import { PlanoPage } from "../../modules/plano/pages/PlanoPage";
 
 export function AppRouter() {
@@ -12,6 +16,10 @@ export function AppRouter() {
         <Route element={<AppLayout />}>
           <Route index element={<DashboardPage />} />
           <Route path="produccion/camas" element={<CamasPage />} />
+          <Route path="produccion/siembras" element={<SiembrasPage />} />
+          <Route path="produccion/labores" element={<LaboresPage />} />
+          <Route path="produccion/cosechas" element={<CosechasPage />} />
+          <Route path="produccion/lotes" element={<LotesPage />} />
           <Route
             path="plano/*"
             element={<PlanoPage />}
