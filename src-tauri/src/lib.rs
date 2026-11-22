@@ -1,11 +1,11 @@
 mod config;
 mod db;
-mod errors;
+pub mod errors;
 mod logging;
-mod modules;
+pub mod modules;
 mod router;
-mod state;
-mod types;
+pub mod state;
+pub mod types;
 
 use std::time::Duration;
 
