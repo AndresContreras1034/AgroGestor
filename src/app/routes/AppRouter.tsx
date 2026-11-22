@@ -8,6 +8,7 @@ import { LaboresPage } from "../../modules/produccion/pages/LaboresPage";
 import { CosechasPage } from "../../modules/produccion/pages/CosechasPage";
 import { LotesPage } from "../../modules/produccion/pages/LotesPage";
 import { PlanoPage } from "../../modules/plano/pages/PlanoPage";
+import { TrazabilidadPage } from "../../modules/trazabilidad/pages/TrazabilidadPage";
 
 export function AppRouter() {
   return (
@@ -54,16 +55,7 @@ export function AppRouter() {
               />
             }
           />
-          <Route
-            path="trazabilidad/*"
-            element={
-              <ModulePage
-                title="Trazabilidad"
-                description="Consulta de la historia del lote desde la cama hasta el cliente."
-                includes={["Búsqueda de lotes", "Línea de tiempo", "Cadena de trazabilidad"]}
-              />
-            }
-          />
+          <Route path="trazabilidad/*" element={<TrazabilidadPage />} />
           <Route
             path="comercial/*"
             element={
