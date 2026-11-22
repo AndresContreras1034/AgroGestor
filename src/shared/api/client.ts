@@ -47,20 +47,35 @@ async function request<T>(path: string, init?: RequestInit): Promise<T> {
   return (await response.json()) as T;
 }
 
+type MetodoMutacion = "POST" | "PUT" | "PATCH" | "DELETE";
+
+function mutar<T>(
+  metodo: MetodoMutacion,
+  path: string,
+  actor: Gestor,
+  body?: unknown,
+  signal?: AbortSignal,
+) {
+  return request<T>(path, {
+    method: metodo,
+    headers: { "X-Gestor": actor },
+    body: body === undefined ? undefined : JSON.stringify(body),
+    signal,
+  });
+}
+
 export function getHealth(signal?: AbortSignal) {
   return request<ApiHealth>("/health", { signal });
 }
 
 export const api = {
   get: <T>(path: string, signal?: AbortSignal) => request<T>(path, { signal }),
-  patch: <T>(
-    path: string,
-    body: unknown,
-    actor: Gestor,
-  ) =>
-    request<T>(path, {
-      method: "PATCH",
-      headers: { "X-Gestor": actor },
-      body: JSON.stringify(body),
-    }),
+  post: <T>(path: string, body: unknown, actor: Gestor, signal?: AbortSignal) =>
+    mutar<T>("POST", path, actor, body, signal),
+  put: <T>(path: string, body: unknown, actor: Gestor, signal?: AbortSignal) =>
+    mutar<T>("PUT", path, actor, body, signal),
+  patch: <T>(path: string, body: unknown, actor: Gestor, signal?: AbortSignal) =>
+    mutar<T>("PATCH", path, actor, body, signal),
+  delete: <T = void>(path: string, actor: Gestor, signal?: AbortSignal) =>
+    mutar<T>("DELETE", path, actor, undefined, signal),
 };
