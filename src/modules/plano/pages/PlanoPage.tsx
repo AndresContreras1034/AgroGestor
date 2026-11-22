@@ -30,6 +30,7 @@ export function PlanoPage() {
   const [modoEdicion, setModoEdicion] = useState(false);
   const [zonaFiltro, setZonaFiltro] = useState("todas");
   const [camaSeleccionada, setCamaSeleccionada] = useState<string | null>("A-01");
+  const [detalleAbierto, setDetalleAbierto] = useState(false);
   const zoomPan = useZoomPan();
   const planoGuardado = useRef<Plano | null>(null);
   const datosReferenciaRef = useRef(true);
@@ -88,6 +89,23 @@ export function PlanoPage() {
     (total, cama) => total + cama.ancho * cama.alto,
     0,
   );
+
+  const abrirDetalleCama = useCallback(
+    (codigo: string) => {
+      setCamaSeleccionada(codigo);
+      if (!modoEdicion) setDetalleAbierto(true);
+    },
+    [modoEdicion],
+  );
+
+  useEffect(() => {
+    if (!detalleAbierto) return;
+    function cerrarConEscape(event: KeyboardEvent) {
+      if (event.key === "Escape") setDetalleAbierto(false);
+    }
+    window.addEventListener("keydown", cerrarConEscape);
+    return () => window.removeEventListener("keydown", cerrarConEscape);
+  }, [detalleAbierto]);
 
   const enfocarZona = useCallback(
     (codigo: string) => {
@@ -264,6 +282,7 @@ export function PlanoPage() {
             guardando={guardando}
             zoomPan={zoomPan}
             onSeleccionar={setCamaSeleccionada}
+            onVerDetalle={abrirDetalleCama}
             onEntrarZona={enfocarZona}
             onPrevisualizar={previsualizar}
             onMover={(codigo, x, y) => void moverCama(codigo, x, y)}
@@ -291,12 +310,20 @@ export function PlanoPage() {
         </section>
 
         <div className="plano-side-panel">
-          <DetalleCama
-            cama={camaActiva}
-            nombreZona={zonaActiva?.nombre}
-            sinConexion={sinConexion}
-            onProduccionCambio={() => void cargar()}
-          />
+          <section className="plano-cama-seleccionada">
+            <h2>Cama seleccionada</h2>
+            <p>
+              {camaActiva
+                ? `Consulta el estado y la producción de ${camaActiva.codigo}.`
+                : "Selecciona una cama en el plano para ver su información."}
+            </p>
+            <Button
+              onClick={() => camaActiva && abrirDetalleCama(camaActiva.codigo)}
+              disabled={!camaActiva || modoEdicion}
+            >
+              {camaActiva ? `Ver información · ${camaActiva.codigo}` : "Selecciona una cama"}
+            </Button>
+          </section>
           <section className="plano-resumen-zonas">
             <h2>Áreas de la finca</h2>
             <p className="plano-zonas-descripcion">
@@ -341,6 +368,43 @@ export function PlanoPage() {
           </section>
         </div>
       </div>
+      {detalleAbierto && camaActiva && (
+        <div
+          className="plano-dialogo-backdrop"
+          onMouseDown={(event) => {
+            if (event.target === event.currentTarget) setDetalleAbierto(false);
+          }}
+        >
+          <section
+            className="plano-dialogo"
+            role="dialog"
+            aria-modal="true"
+            aria-labelledby="plano-dialogo-titulo"
+          >
+            <header className="plano-dialogo-header">
+              <div>
+                <span className="plano-eyebrow">Detalles y producción</span>
+                <h2 id="plano-dialogo-titulo">Información de cama</h2>
+              </div>
+              <button
+                type="button"
+                className="plano-dialogo-cerrar"
+                onClick={() => setDetalleAbierto(false)}
+                aria-label="Cerrar información de la cama"
+                autoFocus
+              >
+                ×
+              </button>
+            </header>
+            <DetalleCama
+              cama={camaActiva}
+              nombreZona={zonaActiva?.nombre}
+              sinConexion={sinConexion}
+              onProduccionCambio={() => void cargar()}
+            />
+          </section>
+        </div>
+      )}
       {guardando && (
         <p className="plano-guardando" role="status">
           <Spinner /> Guardando posición…

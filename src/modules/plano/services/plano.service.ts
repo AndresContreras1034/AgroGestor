@@ -2,7 +2,7 @@ import { api } from "../../../shared/api/client";
 import type { Plano, PosicionActualizada } from "../types/plano";
 
 export function obtenerPlano(signal?: AbortSignal) {
-  return api.get<Plano>("/api/diseno/plano/", signal);
+  return api.get<Plano>("/api/diseno/plano", signal);
 }
 
 export function guardarPosicionCama(

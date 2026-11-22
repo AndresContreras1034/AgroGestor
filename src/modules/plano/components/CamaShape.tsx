@@ -4,9 +4,15 @@ interface CamaShapeProps {
   cama: CamaPlano;
   seleccionada: boolean;
   onSeleccionar: (codigo: string) => void;
+  onVerDetalle: (codigo: string) => void;
 }
 
-export function CamaShape({ cama, seleccionada, onSeleccionar }: CamaShapeProps) {
+export function CamaShape({
+  cama,
+  seleccionada,
+  onSeleccionar,
+  onVerDetalle,
+}: CamaShapeProps) {
   return (
     <g
       data-cama={cama.codigo}
@@ -15,11 +21,12 @@ export function CamaShape({ cama, seleccionada, onSeleccionar }: CamaShapeProps)
       role="button"
       tabIndex={0}
       aria-label={`${cama.codigo}, cama de 250 metros cuadrados`}
-      onClick={() => onSeleccionar(cama.codigo)}
+      onClick={() => onVerDetalle(cama.codigo)}
       onKeyDown={(event) => {
         if (event.key === "Enter" || event.key === " ") {
           event.preventDefault();
           onSeleccionar(cama.codigo);
+          onVerDetalle(cama.codigo);
         }
       }}
     >

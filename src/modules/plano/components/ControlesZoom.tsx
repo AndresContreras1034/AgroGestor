@@ -22,7 +22,13 @@ export function ControlesZoom({
       <button type="button" onClick={onAcercar} aria-label="Acercar" disabled={zoom >= zoomMaximo}>
         +
       </button>
-      <button type="button" className="plano-zoom-ajustar" onClick={onRestablecer}>
+      <button
+        type="button"
+        className="plano-zoom-ajustar"
+        onClick={onRestablecer}
+        aria-label="Ajustar para ver el plano completo"
+        title="Centrar y mostrar el plano completo"
+      >
         Ajustar
       </button>
     </div>

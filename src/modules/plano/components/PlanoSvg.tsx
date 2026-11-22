@@ -37,6 +37,7 @@ interface PlanoSvgProps {
   guardando: boolean;
   zoomPan: ReturnType<typeof useZoomPan>;
   onSeleccionar: (codigo: string) => void;
+  onVerDetalle: (codigo: string) => void;
   onEntrarZona: (codigo: string) => void;
   onPrevisualizar: (codigo: string, x: number, y: number) => void;
   onMover: (codigo: string, x: number, y: number) => void;
@@ -204,6 +205,7 @@ export function PlanoSvg({
   guardando,
   zoomPan,
   onSeleccionar,
+  onVerDetalle,
   onEntrarZona,
   onPrevisualizar,
   onMover,
@@ -342,6 +344,7 @@ export function PlanoSvg({
         ref={svgRef}
         className="plano-svg"
         viewBox={`0 0 ${ANCHO_PLANO} ${ALTO_PLANO}`}
+        preserveAspectRatio="xMidYMid meet"
         role="group"
         aria-label="Plano ilustrado de la finca Santandersito"
         onPointerDown={iniciarGesto}
@@ -505,6 +508,7 @@ export function PlanoSvg({
               cama={cama}
               seleccionada={camaSeleccionada === cama.codigo}
               onSeleccionar={onSeleccionar}
+              onVerDetalle={onVerDetalle}
             />
           ))}
           {zonas.map((zona) => (

@@ -8,14 +8,19 @@ interface Punto {
 
 const ZOOM_MINIMO = 0.6;
 const ZOOM_MAXIMO = 6;
+const ZOOM_AJUSTADO = 0.95;
+const CENTRO_PLANO = { x: 500, y: 285 };
 
 function limitarZoom(valor: number) {
   return Math.min(ZOOM_MAXIMO, Math.max(ZOOM_MINIMO, valor));
 }
 
 export function useZoomPan() {
-  const [zoom, setZoom] = useState(1);
-  const [pan, setPan] = useState<Punto>({ x: 0, y: 0 });
+  const [zoom, setZoom] = useState(ZOOM_AJUSTADO);
+  const [pan, setPan] = useState<Punto>({
+    x: CENTRO_PLANO.x * (1 - ZOOM_AJUSTADO),
+    y: CENTRO_PLANO.y * (1 - ZOOM_AJUSTADO),
+  });
 
   const acercarEn = useCallback(
     (punto: Punto, factor: number) => {
@@ -30,11 +35,11 @@ export function useZoomPan() {
     [pan, zoom],
   );
   const acercar = useCallback(
-    () => acercarEn({ x: 500, y: 350 }, 1.2),
+    () => acercarEn(CENTRO_PLANO, 1.2),
     [acercarEn],
   );
   const alejar = useCallback(
-    () => acercarEn({ x: 500, y: 350 }, 1 / 1.2),
+    () => acercarEn(CENTRO_PLANO, 1 / 1.2),
     [acercarEn],
   );
 
@@ -50,8 +55,11 @@ export function useZoomPan() {
     [],
   );
   const restablecer = useCallback(() => {
-    setZoom(1);
-    setPan({ x: 0, y: 0 });
+    setZoom(ZOOM_AJUSTADO);
+    setPan({
+      x: CENTRO_PLANO.x * (1 - ZOOM_AJUSTADO),
+      y: CENTRO_PLANO.y * (1 - ZOOM_AJUSTADO),
+    });
   }, []);
 
   const obtenerPuntoVista = useCallback(
