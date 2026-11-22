@@ -6,7 +6,7 @@ import { Button } from "../../../shared/ui/Button";
 import { Spinner } from "../../../shared/ui/Spinner";
 import { ESTADOS_CAMA, type EstadoCama } from "../../../shared/types/cama";
 import type { ZonaResumen } from "../../../shared/types/zona";
-import { listarCamas, listarZonas } from "../services/camas.service";
+import { cambiarEstadoCama, listarCamas, listarZonas } from "../services/camas.service";
 import type { Cama } from "../types";
 import "./camas.css";
 
@@ -28,6 +28,7 @@ export function CamasPage() {
   const [error, setError] = useState<string | null>(null);
   const [zona, setZona] = useState("todas");
   const [estado, setEstado] = useState<EstadoCama | "todos">("todos");
+  const [actualizando, setActualizando] = useState<string | null>(null);
 
   const cargar = useCallback(async (signal?: AbortSignal) => {
     setCargando(true);
@@ -72,6 +73,19 @@ export function CamasPage() {
       ),
     [camas, zona, estado],
   );
+
+  async function mover(cama: Cama, nuevo: EstadoCama) {
+    setActualizando(cama.codigo);
+    setError(null);
+    try {
+      await cambiarEstadoCama(cama.codigo, nuevo);
+      await cargar();
+    } catch (cause) {
+      setError(cause instanceof Error ? cause.message : "No se pudo cambiar el estado.");
+    } finally {
+      setActualizando(null);
+    }
+  }
 
   return (
     <section className="camas">
@@ -149,6 +163,7 @@ export function CamasPage() {
                 <th scope="col">Estado</th>
                 <th scope="col">Observaciones</th>
                 <th scope="col">Actualizada</th>
+                <th scope="col">Acciones</th>
               </tr>
             </thead>
             <tbody>
@@ -164,11 +179,29 @@ export function CamasPage() {
                   </td>
                   <td>{cama.observaciones ?? "—"}</td>
                   <td>{formatearFechaHora(cama.actualizado_en)}</td>
+                  <td>
+                    {cama.estado === "cosechada" && (
+                      <Button
+                        onClick={() => void mover(cama, "en_descanso")}
+                        disabled={actualizando === cama.codigo}
+                      >
+                        Poner en descanso
+                      </Button>
+                    )}
+                    {cama.estado === "en_descanso" && (
+                      <Button
+                        onClick={() => void mover(cama, "disponible")}
+                        disabled={actualizando === cama.codigo}
+                      >
+                        Liberar
+                      </Button>
+                    )}
+                  </td>
                 </tr>
               ))}
               {visibles.length === 0 && (
                 <tr>
-                  <td colSpan={6} className="camas-empty">
+                  <td colSpan={7} className="camas-empty">
                     Ninguna cama coincide con el filtro.
                   </td>
                 </tr>

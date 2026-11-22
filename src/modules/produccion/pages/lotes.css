@@ -1,0 +1,23 @@
+.lotes-acciones {
+  display: flex;
+  gap: 0.5rem;
+  align-items: center;
+}
+
+.lotes-form {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  max-width: 32rem;
+  margin-bottom: 1rem;
+}
+
+.lotes-form label {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+}
+
+.lotes-form-ayuda {
+  margin: 0;
+}

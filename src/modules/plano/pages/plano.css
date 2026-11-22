@@ -3,6 +3,29 @@
   gap: 0.75rem;
 }
 
+.plano-produccion {
+  margin-top: 0.75rem;
+  padding-top: 0.75rem;
+  border-top: 1px solid #dfe5dc;
+}
+
+.plano-produccion h3 {
+  margin: 0 0 0.5rem;
+  font-size: 0.95rem;
+}
+
+.plano-produccion p {
+  margin: 0.35rem 0;
+  color: #526158;
+  font-size: 0.85rem;
+}
+
+.plano-produccion-actions {
+  display: flex;
+  gap: 0.5rem;
+  margin-top: 0.5rem;
+}
+
 .plano-header {
   display: flex;
   align-items: flex-start;

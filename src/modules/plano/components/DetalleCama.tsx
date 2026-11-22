@@ -2,14 +2,21 @@ import { Badge } from "../../../shared/ui/Badge";
 import { formatearFechaHora } from "../../../shared/utils/fechas";
 import { COLORES_ESTADO } from "../utils/colores";
 import type { CamaPlano } from "../types/plano";
+import { ResumenProduccionCama } from "./ResumenProduccionCama";
 
 interface DetalleCamaProps {
   cama: CamaPlano | null;
   nombreZona?: string;
   sinConexion?: boolean;
+  onProduccionCambio?: () => void;
 }
 
-export function DetalleCama({ cama, nombreZona, sinConexion = false }: DetalleCamaProps) {
+export function DetalleCama({
+  cama,
+  nombreZona,
+  sinConexion = false,
+  onProduccionCambio,
+}: DetalleCamaProps) {
   if (!cama) {
     return (
       <aside className="plano-detalle plano-detalle-vacio">
@@ -63,6 +70,12 @@ export function DetalleCama({ cama, nombreZona, sinConexion = false }: DetalleCa
           <dd>{sinConexion ? "Conecta la API para consultar los datos actuales" : formatearFechaHora(cama.actualizado_en)}</dd>
         </div>
       </dl>
+      {!sinConexion && (
+        <ResumenProduccionCama
+          codigo={cama.codigo}
+          onCambio={onProduccionCambio}
+        />
+      )}
     </aside>
   );
 }

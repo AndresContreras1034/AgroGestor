@@ -295,6 +295,7 @@ export function PlanoPage() {
             cama={camaActiva}
             nombreZona={zonaActiva?.nombre}
             sinConexion={sinConexion}
+            onProduccionCambio={() => void cargar()}
           />
           <section className="plano-resumen-zonas">
             <h2>Áreas de la finca</h2>

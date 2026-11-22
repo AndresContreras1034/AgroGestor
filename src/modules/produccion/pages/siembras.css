@@ -1,0 +1,80 @@
+.siembras-actions {
+  display: flex;
+  gap: 0.5rem;
+}
+
+.siembras-dialog-backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 50;
+  display: grid;
+  place-items: center;
+  padding: 1rem;
+  background: rgb(0 0 0 / 0.45);
+}
+
+.siembras-dialog {
+  width: min(32rem, 100%);
+  max-height: 90vh;
+  overflow-y: auto;
+  padding: 1.25rem;
+  border-radius: 0.75rem;
+  background: var(--color-surface, #fff);
+  color: inherit;
+  box-shadow: 0 10px 30px rgb(0 0 0 / 0.25);
+}
+
+.siembras-dialog h2 {
+  margin: 0 0 1rem;
+}
+
+.siembras-form {
+  display: grid;
+  gap: 0.85rem;
+}
+
+.siembras-form label {
+  display: grid;
+  gap: 0.25rem;
+  font-size: 0.9rem;
+}
+
+.siembras-form input,
+.siembras-form select,
+.siembras-form textarea {
+  padding: 0.45rem 0.6rem;
+  font: inherit;
+  border: 1px solid rgb(128 128 128 / 0.5);
+  border-radius: 0.4rem;
+  background: transparent;
+  color: inherit;
+}
+
+.siembras-form .fila {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0.75rem;
+}
+
+.siembras-form-footer {
+  display: flex;
+  justify-content: flex-end;
+  gap: 0.5rem;
+  margin-top: 0.5rem;
+}
+
+.siembras-hint {
+  margin: 0;
+  font-size: 0.8rem;
+  opacity: 0.7;
+}
+
+.siembras-form .check {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.siembras-form .check input {
+  width: auto;
+}
