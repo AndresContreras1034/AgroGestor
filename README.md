@@ -8,6 +8,18 @@ AgroGestor combina React y TypeScript con Tauri, Rust, Axum y PostgreSQL. Incluy
 
 Este repositorio es una aplicación modular en desarrollo. La base técnica está implementada y varias áreas tienen interfaces y endpoints funcionales; otras áreas siguen en construcción.
 
+### Ciclo de la cama
+
+`disponible → (siembra) sembrada → (cosecha final) cosechada → en_descanso → disponible`
+
+Cancelar una siembra activa devuelve la cama a disponible. `sembrada` solo cambia por siembras y cosechas; el `PATCH` manual rechaza esas transiciones.
+
+### Cosechas parciales
+
+Una siembra admite varios cortes. `POST /api/produccion/cosechas` recibe `cerrar_siembra` (por defecto `true`). Con `false`, la siembra sigue activa. Al cerrar, siembra y cama pasan a `cosechada` en la misma transacción.
+
+La cama se deriva de la siembra en el servidor. Solo se puede cosechar en lotes abiertos.
+
 | Área | Estado visible en el repositorio |
 |---|---|
 | Plano de diseño | Implementado |
@@ -20,6 +32,30 @@ Este repositorio es una aplicación modular en desarrollo. La base técnica est�
 | Analítica | Módulo base, semáforo y predicción estructurados |
 | Business intelligence | Vistas SQL y documentación base |
 | Empaquetado y despliegue | Pendiente de automatización completa |
+
+## Flujo de producción
+
+Una cama recorre este ciclo. El backend realiza cada transición en una transacción para mantener consistentes cama y siembra.
+
+```mermaid
+stateDiagram-v2
+    [*] --> disponible
+    disponible --> sembrada: sembrar
+    en_descanso --> sembrada: sembrar
+    sembrada --> cosechada: cosechar
+    sembrada --> disponible: cancelar siembra
+    cosechada --> en_descanso: PATCH cama
+    en_descanso --> disponible: PATCH cama
+```
+
+| Entidad | Estados | Reglas |
+|---|---|---|
+| Cama | `disponible`, `sembrada`, `cosechada`, `en_descanso` | Solo se siembra si está disponible o en descanso. |
+| Siembra | `activa`, `cosechada`, `cancelada` | Máximo una activa por cama. Una cosecha puede cerrar la siembra o ser parcial. |
+| Lote | `abierto`, `cerrado` | Código `RSC-AAAA-NNN` generado por el servidor. Un lote cerrado no admite cosechas. |
+| Labor | riego, fertilización, poda, deshierbe, fumigación, otra | Se registra por cama o por siembra activa; la fecha no puede ser futura. |
+
+Los `POST` y `PATCH` requieren `X-Gestor: proyecto`, `comercial`, `calidad` o `diseno`. Los errores usan `{ "error": { "codigo": "...", "mensaje": "..." } }`.
 
 ## Capturas
 
