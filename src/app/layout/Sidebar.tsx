@@ -3,7 +3,11 @@ import { NavLink } from "react-router-dom";
 const links = [
   { to: "/", label: "Dashboard", end: true },
   { to: "/plano", label: "Plano" },
-  { to: "/produccion/camas", label: "Producción" },
+  { to: "/produccion/camas", label: "Camas" },
+  { to: "/produccion/siembras", label: "Siembras" },
+  { to: "/produccion/labores", label: "Labores" },
+  { to: "/produccion/cosechas", label: "Cosechas" },
+  { to: "/produccion/lotes", label: "Lotes" },
   { to: "/monitoreo", label: "Monitoreo IoT" },
   { to: "/calidad", label: "Calidad" },
   { to: "/trazabilidad", label: "Trazabilidad" },
