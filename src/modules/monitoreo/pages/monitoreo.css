@@ -1,0 +1,361 @@
+.monitoreo {
+  display: grid;
+  gap: 1rem;
+  color: #20372a;
+}
+
+.monitoreo-header,
+.monitoreo-actions,
+.monitoreo-panel-header,
+.monitoreo-resumen,
+.monitoreo-layout,
+.sensor-grid,
+.umbrales-grid,
+.camastatus-grid {
+  display: flex;
+}
+
+.monitoreo-header {
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 1rem;
+}
+
+.monitoreo-header h1 {
+  margin: 0;
+  font-size: 1.7rem;
+}
+
+.monitoreo-header p,
+.monitoreo-panel-header p {
+  margin: 0.25rem 0 0;
+  color: #65766c;
+  font-size: 0.82rem;
+}
+
+.monitoreo-eyebrow {
+  display: block;
+  margin-bottom: 0.22rem;
+  color: #63806b;
+  font-size: 0.68rem;
+  font-weight: 800;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.monitoreo-actions {
+  align-items: center;
+  gap: 0.65rem;
+}
+
+.monitoreo-actions select,
+.monitoreo-form select,
+.monitoreo-form input,
+.umbral-card input {
+  min-height: 2.35rem;
+  border: 1px solid #d4dfd7;
+  border-radius: 6px;
+  background: #fff;
+  color: #20372a;
+  font: inherit;
+}
+
+.monitoreo-actions select,
+.monitoreo-form select {
+  padding: 0.42rem 0.55rem;
+}
+
+.monitoreo-error {
+  margin: 0;
+  padding: 0.65rem 0.85rem;
+  border-left: 3px solid #bb4545;
+  border-radius: 4px;
+  background: #fff;
+  color: #9e3333;
+}
+
+.monitoreo-resumen {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 0.75rem;
+}
+
+.monitoreo-resumen article,
+.sensor-card,
+.camastatus-grid article,
+.monitoreo-panel {
+  border: 1px solid #dce5de;
+  border-radius: 10px;
+  background: #fff;
+  box-shadow: 0 5px 18px rgb(23 53 34 / 4%);
+}
+
+.monitoreo-resumen article {
+  display: grid;
+  gap: 0.15rem;
+  padding: 0.8rem 0.95rem;
+}
+
+.monitoreo-resumen span,
+.sensor-card > span {
+  color: #6b7c72;
+  font-size: 0.75rem;
+  font-weight: 700;
+}
+
+.monitoreo-resumen strong {
+  color: #2b6040;
+  font-size: 1.45rem;
+  font-variant-numeric: tabular-nums;
+}
+
+.monitoreo-layout {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 250px;
+  align-items: start;
+  gap: 1rem;
+}
+
+.monitoreo-panel {
+  min-width: 0;
+  overflow: hidden;
+}
+
+.monitoreo-panel-header {
+  align-items: center;
+  justify-content: space-between;
+  padding: 0.85rem 1rem;
+  border-bottom: 1px solid #e7ede8;
+}
+
+.monitoreo-panel-header h2 {
+  margin: 0;
+  font-size: 1rem;
+}
+
+.monitoreo-table-wrap {
+  overflow-x: auto;
+}
+
+.monitoreo-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.82rem;
+}
+
+.monitoreo-table th {
+  padding: 0.65rem 0.75rem;
+  background: #f7faf7;
+  color: #607167;
+  font-size: 0.68rem;
+  letter-spacing: 0.04em;
+  text-align: left;
+  text-transform: uppercase;
+  white-space: nowrap;
+}
+
+.monitoreo-table td {
+  padding: 0.65rem 0.75rem;
+  border-top: 1px solid #edf1ed;
+  white-space: nowrap;
+}
+
+.monitoreo-table code,
+.monitoreo-table strong {
+  color: #315840;
+}
+
+.monitoreo-empty,
+.monitoreo-estado {
+  min-height: 120px;
+  align-items: center;
+  justify-content: center;
+  color: #718077;
+  text-align: center;
+}
+
+.monitoreo-estado {
+  display: flex;
+  gap: 0.7rem;
+}
+
+.monitoreo-form {
+  display: grid;
+  gap: 0.75rem;
+  padding: 1rem;
+}
+
+.monitoreo-form label,
+.umbral-fields label {
+  display: grid;
+  gap: 0.25rem;
+  color: #65766c;
+  font-size: 0.78rem;
+  font-weight: 700;
+}
+
+.monitoreo-form input {
+  width: 100%;
+  box-sizing: border-box;
+  padding: 0.45rem 0.55rem;
+}
+
+.sensor-grid {
+  display: grid;
+  grid-template-columns: repeat(5, minmax(0, 1fr));
+  gap: 0.75rem;
+}
+
+.sensor-card {
+  padding: 0.85rem;
+}
+
+.sensor-card strong {
+  display: block;
+  margin-top: 0.35rem;
+  color: #28623d;
+  font-size: 1.35rem;
+  font-variant-numeric: tabular-nums;
+}
+
+.sensor-card strong small {
+  color: #718077;
+  font-size: 0.68rem;
+}
+
+.sensor-card p {
+  margin: 0.35rem 0 0;
+  color: #718077;
+  font-size: 0.72rem;
+}
+
+.camastatus-grid {
+  display: grid;
+  grid-template-columns: repeat(6, minmax(0, 1fr));
+  gap: 0.55rem;
+  padding: 0.75rem;
+}
+
+.camastatus-grid article {
+  display: grid;
+  gap: 0.2rem;
+  padding: 0.7rem;
+  border-radius: 7px;
+  box-shadow: none;
+}
+
+.camastatus-grid strong {
+  color: #315840;
+}
+
+.camastatus-grid span {
+  font-weight: 750;
+}
+
+.camastatus-grid small {
+  color: #718077;
+}
+
+.umbrales-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 0.85rem;
+}
+
+.umbral-card {
+  display: grid;
+  gap: 0.75rem;
+  padding-bottom: 0.85rem;
+}
+
+.unidad-input {
+  width: 5rem;
+  padding: 0.35rem 0.45rem;
+  text-align: center;
+}
+
+.rango-track {
+  display: grid;
+  grid-template-columns: repeat(5, 1fr);
+  margin: 0 1rem;
+  overflow: hidden;
+  border-radius: 999px;
+  color: #fff;
+  font-size: 0.65rem;
+  text-align: center;
+}
+
+.rango-track span {
+  padding: 0.35rem 0.15rem;
+}
+
+.rango-critico {
+  background: #bd6860;
+}
+
+.rango-alerta {
+  background: #d9ad55;
+  color: #4f401e;
+}
+
+.rango-normal {
+  background: #62a276;
+}
+
+.umbral-fields {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 0.5rem;
+  padding: 0 1rem;
+}
+
+.umbral-fields input {
+  min-width: 0;
+  width: 100%;
+  box-sizing: border-box;
+  padding: 0.4rem;
+}
+
+.umbral-card > .button {
+  justify-self: end;
+  margin-right: 1rem;
+}
+
+.badge-riesgo {
+  background: #fff1cc;
+  color: #946d18;
+}
+
+.badge-critico {
+  background: #f7dfdd;
+  color: #a8463e;
+}
+
+@media (max-width: 1050px) {
+  .sensor-grid,
+  .camastatus-grid {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+
+  .monitoreo-layout {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 700px) {
+  .monitoreo-header {
+    flex-direction: column;
+  }
+
+  .monitoreo-resumen,
+  .sensor-grid,
+  .umbrales-grid,
+  .camastatus-grid,
+  .umbral-fields {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .monitoreo-actions {
+    width: 100%;
+  }
+}

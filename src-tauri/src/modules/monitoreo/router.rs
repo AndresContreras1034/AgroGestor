@@ -1,15 +1,10 @@
 use crate::state::AppState;
-use axum::{Json, Router, http::StatusCode, routing::post};
+use axum::Router;
 
 pub fn router() -> Router<AppState> {
-    Router::new().route("/ingesta", post(ingesta_not_implemented))
-}
-
-async fn ingesta_not_implemented(
-    Json(_payload): Json<serde_json::Value>,
-) -> (StatusCode, &'static str) {
-    (
-        StatusCode::NOT_IMPLEMENTED,
-        "La persistencia de lecturas aún no está implementada",
-    )
+    Router::new()
+        .nest("/nodos", super::nodos::handlers::rutas())
+        .nest("/lecturas", super::lecturas::handlers::rutas())
+        .nest("/umbrales", super::umbrales::handlers::rutas())
+        .nest("/ingesta", super::ingesta::handlers::rutas())
 }
