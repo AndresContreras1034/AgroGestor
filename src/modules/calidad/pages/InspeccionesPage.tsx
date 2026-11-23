@@ -1,3 +1,16 @@
-export function InspeccionesPage() {
-  return null;
-}
+import { useEffect,useState,type FormEvent } from "react";
+import { listarCamas } from "../../produccion/services/camas.service";
+import type { Cama } from "../../produccion/types";
+import { Badge } from "../../../shared/ui/Badge";
+import { Button } from "../../../shared/ui/Button";
+import { Spinner } from "../../../shared/ui/Spinner";
+import { ModuleSubnav } from "../../../shared/ui/ModuleSubnav";
+import { crearInspeccion,listarInspecciones } from "../services/calidad.service";
+import type { Inspeccion } from "../types";
+import "./calidad.css";
+
+export function InspeccionesPage(){const [filas,setFilas]=useState<Inspeccion[]>([]);const[camas,setCamas]=useState<Cama[]>([]);const[loading,setLoading]=useState(true);const[error,setError]=useState<string|null>(null);
+const[cama,setCama]=useState("");const[resultado,setResultado]=useState("aprobada");const[puntaje,setPuntaje]=useState("90");const[inspector,setInspector]=useState("");
+async function cargar(signal?:AbortSignal){setLoading(true);setError(null);try{const[a,b]=await Promise.all([listarInspecciones(signal),listarCamas(signal)]);setFilas(a);setCamas(b);if(!cama&&b[0])setCama(b[0].codigo);}catch(cause){if(!(cause instanceof DOMException&&cause.name==="AbortError"))setError(cause instanceof Error?cause.message:"No se pudieron cargar las inspecciones.");}finally{if(!signal?.aborted)setLoading(false)}}useEffect(()=>{const c=new AbortController();void cargar(c.signal);return()=>c.abort();},[]);
+async function guardar(e:FormEvent){e.preventDefault();try{await crearInspeccion({cama_codigo:cama,fecha:null,resultado,puntaje:Number(puntaje),observaciones:null,inspector:inspector||null});setInspector("");await cargar();}catch(cause){setError(cause instanceof Error?cause.message:"No se pudo registrar la inspección.");}}
+return <section className="calidad"><header className="calidad-header"><div><span>Control de calidad</span><h1>Inspecciones</h1></div><Button onClick={()=>void cargar()}>Actualizar</Button></header><ModuleSubnav label="Secciones de Calidad" items={[{to:"/calidad/incidencias",label:"Incidencias"},{to:"/calidad/tratamientos",label:"Tratamientos"},{to:"/calidad/inspecciones",label:"Inspecciones"}]}/>{error&&<p className="calidad-error">{error}</p>}<div className="calidad-layout"><section className="calidad-panel"><div className="calidad-panel-header"><h2>Resultados de campo</h2><p>{filas.length} inspecciones</p></div>{loading?<div className="calidad-state"><Spinner/></div>:<div className="calidad-table-wrap"><table className="calidad-table"><thead><tr><th>Fecha</th><th>Cama</th><th>Resultado</th><th>Puntaje</th><th>Inspector</th></tr></thead><tbody>{filas.map(f=><tr key={f.id}><td>{f.fecha}</td><td><strong>{f.cama_codigo}</strong></td><td><Badge tono={f.resultado==="aprobada"?"ok":f.resultado==="observada"?"riesgo":"critico"}>{f.resultado}</Badge></td><td>{f.puntaje??"—"} / 100</td><td>{f.inspector||"—"}</td></tr>)}{!filas.length&&<tr><td colSpan={5} className="calidad-empty">No hay inspecciones registradas.</td></tr>}</tbody></table></div>}</section><aside className="calidad-panel"><div className="calidad-panel-header"><h2>Nueva inspección</h2></div><form className="calidad-form" onSubmit={guardar}><label>Cama<select value={cama} onChange={e=>setCama(e.target.value)}>{camas.map(c=><option key={c.id} value={c.codigo}>{c.codigo}</option>)}</select></label><label>Resultado<select value={resultado} onChange={e=>setResultado(e.target.value)}><option value="aprobada">Aprobada</option><option value="observada">Observada</option><option value="rechazada">Rechazada</option></select></label><label>Puntaje<input type="number" min="0" max="100" value={puntaje} onChange={e=>setPuntaje(e.target.value)}/></label><label>Inspector<input value={inspector} onChange={e=>setInspector(e.target.value)}/></label><Button variante="primario" type="submit">Registrar</Button></form></aside></div></section>}

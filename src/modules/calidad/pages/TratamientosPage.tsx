@@ -1,3 +1,17 @@
-export function TratamientosPage() {
-  return null;
+import { useEffect,useState,type FormEvent } from "react";
+import { Button } from "../../../shared/ui/Button";
+import { Spinner } from "../../../shared/ui/Spinner";
+import { ModuleSubnav } from "../../../shared/ui/ModuleSubnav";
+import { crearTratamiento,listarIncidencias,listarTratamientos } from "../services/calidad.service";
+import type { Incidencia,Tratamiento } from "../types";
+import "./calidad.css";
+
+export function TratamientosPage(){
+ const [filas,setFilas]=useState<Tratamiento[]>([]);const [inc,setInc]=useState<Incidencia[]>([]);
+ const [loading,setLoading]=useState(true);const [error,setError]=useState<string|null>(null);
+ const [incidencia,setIncidencia]=useState("");const [producto,setProducto]=useState("");const [dosis,setDosis]=useState("");const [fecha,setFecha]=useState(new Date().toISOString().slice(0,10));
+ async function cargar(signal?:AbortSignal){setLoading(true);setError(null);try{const [a,b]=await Promise.all([listarTratamientos(signal),listarIncidencias(signal)]);setFilas(a);setInc(b);if(!incidencia&&b[0])setIncidencia(String(b[0].id));}catch(cause){if(!(cause instanceof DOMException&&cause.name==="AbortError"))setError(cause instanceof Error?cause.message:"No se pudieron cargar los tratamientos.");}finally{if(!signal?.aborted)setLoading(false)}}
+ useEffect(()=>{const c=new AbortController();void cargar(c.signal);return()=>c.abort();},[]);
+ async function guardar(e:FormEvent){e.preventDefault();try{await crearTratamiento({incidencia_id:Number(incidencia),producto,dosis:dosis||null,fecha_aplicacion:fecha,responsable:null,observaciones:null});setProducto("");setDosis("");await cargar();}catch(cause){setError(cause instanceof Error?cause.message:"No se pudo registrar el tratamiento.");}}
+ return <section className="calidad"><header className="calidad-header"><div><span>Control aplicado</span><h1>Tratamientos</h1></div><Button onClick={()=>void cargar()}>Actualizar</Button></header><ModuleSubnav label="Secciones de Calidad" items={[{to:"/calidad/incidencias",label:"Incidencias"},{to:"/calidad/tratamientos",label:"Tratamientos"},{to:"/calidad/inspecciones",label:"Inspecciones"}]}/>{error&&<p className="calidad-error">{error}</p>}<div className="calidad-layout"><section className="calidad-panel"><div className="calidad-panel-header"><h2>Aplicaciones realizadas</h2><p>{filas.length} registros</p></div>{loading?<div className="calidad-state"><Spinner/></div>:<div className="calidad-table-wrap"><table className="calidad-table"><thead><tr><th>Fecha</th><th>Incidencia</th><th>Producto</th><th>Dosis</th><th>Responsable</th></tr></thead><tbody>{filas.map(f=><tr key={f.id}><td>{f.fecha_aplicacion}</td><td>#{f.incidencia_id}</td><td><strong>{f.producto}</strong></td><td>{f.dosis||"—"}</td><td>{f.responsable||"Proyecto"}</td></tr>)}{!filas.length&&<tr><td colSpan={5} className="calidad-empty">No hay tratamientos registrados.</td></tr>}</tbody></table></div>}</section><aside className="calidad-panel"><div className="calidad-panel-header"><h2>Registrar aplicación</h2></div><form className="calidad-form" onSubmit={guardar}><label>Incidencia<select value={incidencia} onChange={e=>setIncidencia(e.target.value)}>{inc.map(i=><option key={i.id} value={i.id}>#{i.id} · {i.nombre}</option>)}</select></label><label>Producto<input value={producto} onChange={e=>setProducto(e.target.value)} required/></label><label>Dosis<input value={dosis} onChange={e=>setDosis(e.target.value)} placeholder="Ej. 2 ml/L"/></label><label>Fecha<input type="date" value={fecha} onChange={e=>setFecha(e.target.value)} required/></label><Button variante="primario" type="submit" disabled={!incidencia||!producto.trim()}>Registrar</Button></form></aside></div></section>;
 }
