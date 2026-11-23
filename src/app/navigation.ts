@@ -31,14 +31,18 @@ export const NAVIGATION_GROUPS: NavigationGroup[] = [
   {
     label: "Seguimiento",
     items: [
-      { to: "/monitoreo", label: "Monitoreo IoT" },
-      { to: "/calidad", label: "Calidad" },
+      { to: "/monitoreo/nodos", label: "Monitoreo IoT" },
+      { to: "/calidad/incidencias", label: "Calidad" },
       { to: "/trazabilidad", label: "Trazabilidad" },
     ],
   },
   {
     label: "Comercial",
-    items: [{ to: "/comercial", label: "Comercial" }],
+    items: [{ to: "/comercial/clientes", label: "Comercial" }],
+  },
+  {
+    label: "Control",
+    items: [{ to: "/analitica", label: "Analítica" }],
   },
 ];
 
@@ -50,6 +54,19 @@ export function getNavigationContext(pathname: string) {
     if (item) {
       return { group: group.label, label: item.label };
     }
+  }
+
+  if (pathname.startsWith("/monitoreo")) {
+    return { group: "Seguimiento", label: "Monitoreo IoT" };
+  }
+  if (pathname.startsWith("/calidad")) {
+    return { group: "Seguimiento", label: "Calidad" };
+  }
+  if (pathname.startsWith("/comercial")) {
+    return { group: "Comercial", label: "Comercial" };
+  }
+  if (pathname.startsWith("/analitica")) {
+    return { group: "Control", label: "Analítica" };
   }
 
   return pathname.startsWith("/produccion")

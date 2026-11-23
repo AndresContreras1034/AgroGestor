@@ -1,0 +1,25 @@
+.module-subnav {
+  display: flex;
+  align-items: center;
+  gap: 0.25rem;
+  width: fit-content;
+  padding: 0.25rem;
+  border: 1px solid #dce5de;
+  border-radius: 8px;
+  background: #eef3ef;
+}
+
+.module-subnav a {
+  padding: 0.42rem 0.72rem;
+  border-radius: 6px;
+  color: #5e6f64;
+  font-size: 0.78rem;
+  font-weight: 700;
+  text-decoration: none;
+}
+
+.module-subnav a.active {
+  background: #fff;
+  color: #2d6a43;
+  box-shadow: 0 1px 4px rgb(23 53 34 / 8%);
+}

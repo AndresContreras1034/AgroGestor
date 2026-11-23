@@ -1,4 +1,9 @@
+import { useEffect, useMemo, useState } from "react";
 import { Link } from "react-router-dom";
+import { obtenerProduccionAnalitica, obtenerResumenAnalitico } from "../../analitica/services/analitica.service";
+import type { ProduccionSerie, ResumenAnalitico } from "../../analitica/types";
+import { listarCosechas } from "../../produccion/services/cosechas.service";
+import type { Cosecha } from "../../produccion/types";
 import "./dashboard.css";
 
 const ETAPAS_RUSCUS = [
@@ -46,23 +51,52 @@ const ETAPAS_RUSCUS = [
   },
 ];
 
-const COSECHA_CALIDAD = [
-  { etiqueta: "Primera", valor: 68, tallos: "1.240" },
-  { etiqueta: "Segunda", valor: 24, tallos: "440" },
-  { etiqueta: "Descarte", valor: 8, tallos: "146" },
-];
-
-const SEMANA = [
-  { dia: "Lun", valor: 38 },
-  { dia: "Mar", valor: 52 },
-  { dia: "Mié", valor: 44 },
-  { dia: "Jue", valor: 68 },
-  { dia: "Vie", valor: 56 },
-  { dia: "Sáb", valor: 74 },
-  { dia: "Dom", valor: 47 },
-];
-
 export function DashboardPage() {
+  const [resumen, setResumen] = useState<ResumenAnalitico | null>(null);
+  const [produccion, setProduccion] = useState<ProduccionSerie[]>([]);
+  const [cosechas, setCosechas] = useState<Cosecha[]>([]);
+
+  useEffect(() => {
+    const controller = new AbortController();
+    Promise.all([
+      obtenerResumenAnalitico(controller.signal),
+      obtenerProduccionAnalitica(controller.signal),
+      listarCosechas(controller.signal),
+    ])
+      .then(([resumenRespuesta, produccionRespuesta, cosechasRespuesta]) => {
+        setResumen(resumenRespuesta);
+        setProduccion(produccionRespuesta);
+        setCosechas(cosechasRespuesta);
+      })
+      .catch(() => {
+        setResumen(null);
+        setProduccion([]);
+        setCosechas([]);
+      });
+    return () => controller.abort();
+  }, []);
+
+  const calidadCosecha = useMemo(() => {
+    const etiquetas = [
+      { clave: "primera" as const, etiqueta: "Primera" },
+      { clave: "segunda" as const, etiqueta: "Segunda" },
+      { clave: "descarte" as const, etiqueta: "Descarte" },
+    ];
+    const total = cosechas.reduce((suma, cosecha) => suma + cosecha.tallos, 0);
+    return etiquetas.map(({ clave, etiqueta }) => {
+      const tallos = cosechas
+        .filter((cosecha) => cosecha.calidad === clave)
+        .reduce((suma, cosecha) => suma + cosecha.tallos, 0);
+      return {
+        etiqueta,
+        tallos,
+        valor: total === 0 ? 0 : Math.round((tallos / total) * 100),
+      };
+    });
+  }, [cosechas]);
+
+  const maximoProduccion = Math.max(...produccion.map((item) => item.tallos), 1);
+
   return (
     <section className="dashboard-page">
       <header className="dashboard-header">
@@ -71,29 +105,29 @@ export function DashboardPage() {
           <h1>Inicio</h1>
           <p>Resumen productivo y flujo operativo del cultivo de Ruscus.</p>
         </div>
-        <span className="dashboard-reference">Datos de referencia</span>
+        <span className="dashboard-reference">Datos operativos</span>
       </header>
 
       <div className="dashboard-kpis">
         <article className="dashboard-kpi">
           <span>Camas registradas</span>
-          <strong>31</strong>
-          <small>25 disponibles · 6 campo abierto</small>
+          <strong>{resumen?.camas ?? "—"}</strong>
+          <small>{resumen ? `${resumen.siembras_activas} siembras activas` : "Cargando datos"}</small>
         </article>
         <article className="dashboard-kpi">
           <span>Siembras activas</span>
-          <strong>18</strong>
-          <small>58 % del área sembrada</small>
+          <strong>{resumen?.siembras_activas ?? "—"}</strong>
+          <small>{resumen ? `${resumen.incidencias_abiertas} incidencias abiertas` : "Cargando datos"}</small>
         </article>
         <article className="dashboard-kpi">
-          <span>Cosecha de referencia</span>
-          <strong>1.826</strong>
-          <small>tallos registrados</small>
+          <span>Cosecha registrada</span>
+          <strong>{resumen?.tallos_cosechados.toLocaleString("es-CO") ?? "—"}</strong>
+          <small>{resumen ? `${resumen.lecturas_24h} lecturas en 24 h` : "Cargando datos"}</small>
         </article>
         <article className="dashboard-kpi">
           <span>Lotes abiertos</span>
-          <strong>4</strong>
-          <small>Listos para trazabilidad</small>
+          <strong>{resumen?.lotes_abiertos ?? "—"}</strong>
+          <small>{resumen ? `${resumen.clientes_activos} clientes activos` : "Cargando datos"}</small>
         </article>
       </div>
 
@@ -143,20 +177,23 @@ export function DashboardPage() {
             <Link to="/produccion/cosechas">Ver cosechas</Link>
           </header>
 
-          <div className="dashboard-bar-chart" aria-label="Cosecha referencial de los últimos siete días">
-            {SEMANA.map((item) => (
-              <div className="dashboard-bar-column" key={item.dia}>
-                <span className="dashboard-bar-value">{item.valor * 10}</span>
+          <div className="dashboard-bar-chart" aria-label="Cosecha registrada por día">
+            {produccion.map((item) => (
+              <div className="dashboard-bar-column" key={item.fecha}>
+                <span className="dashboard-bar-value">{item.tallos}</span>
                 <div className="dashboard-bar-track">
                   <div
                     className="dashboard-bar-fill"
-                    style={{ height: `${item.valor}%` }}
+                    style={{ height: `${Math.max(8, (item.tallos / maximoProduccion) * 100)}%` }}
                     aria-hidden="true"
                   />
                 </div>
-                <small>{item.dia}</small>
+                <small>{item.fecha.slice(5)}</small>
               </div>
             ))}
+            {produccion.length === 0 && (
+              <small className="dashboard-bar-empty">Sin cosechas recientes</small>
+            )}
           </div>
         </section>
 
@@ -169,7 +206,7 @@ export function DashboardPage() {
           </header>
 
           <div className="dashboard-quality">
-            {COSECHA_CALIDAD.map((item) => (
+            {calidadCosecha.map((item) => (
               <div className="dashboard-quality-row" key={item.etiqueta}>
                 <div>
                   <span>{item.etiqueta}</span>
