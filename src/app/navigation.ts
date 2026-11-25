@@ -42,7 +42,10 @@ export const NAVIGATION_GROUPS: NavigationGroup[] = [
   },
   {
     label: "Control",
-    items: [{ to: "/analitica", label: "Analítica" }],
+    items: [
+      { to: "/analitica", label: "Analítica" },
+      { to: "/simulacion", label: "Iniciar simulación" },
+    ],
   },
 ];
 
@@ -67,6 +70,9 @@ export function getNavigationContext(pathname: string) {
   }
   if (pathname.startsWith("/analitica")) {
     return { group: "Control", label: "Analítica" };
+  }
+  if (pathname.startsWith("/simulacion")) {
+    return { group: "Control", label: "Iniciar simulación" };
   }
 
   return pathname.startsWith("/produccion")

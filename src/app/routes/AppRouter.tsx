@@ -19,6 +19,7 @@ import { ClientesPage } from "../../modules/comercial/pages/ClientesPage";
 import { OrdenesPage } from "../../modules/comercial/pages/OrdenesPage";
 import { DespachosPage } from "../../modules/comercial/pages/DespachosPage";
 import { AnaliticaPage } from "../../modules/analitica/AnaliticaPage";
+import { SimulacionPage } from "../../modules/simulacion/SimulacionPage";
 import { NotFoundPage } from "../../shared/ui/NotFoundPage";
 
 export function AppRouter() {
@@ -60,6 +61,7 @@ export function AppRouter() {
           <Route path="comercial/ordenes" element={<OrdenesPage />} />
           <Route path="comercial/despachos" element={<DespachosPage />} />
           <Route path="analitica" element={<AnaliticaPage />} />
+          <Route path="simulacion" element={<SimulacionPage />} />
           <Route path="*" element={<NotFoundPage />} />
         </Route>
       </Routes>
