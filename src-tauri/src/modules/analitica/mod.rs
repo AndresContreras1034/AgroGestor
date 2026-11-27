@@ -1,3 +1,4 @@
+pub mod asistente;
 pub mod dto;
 pub mod handlers;
 pub mod prediccion;

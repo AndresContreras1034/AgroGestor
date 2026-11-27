@@ -88,13 +88,15 @@ Los `POST` y `PATCH` requieren `X-Gestor: proyecto`, `comercial`, `calidad` o `d
 
 ## Capturas
 
-Agrega imágenes reales dentro de `docs/screenshots/` y enlázalas aquí cuando el flujo esté disponible en una demostración estable:
+Capturas de la aplicación ejecutándose con datos de demostración:
 
-```text
-docs/screenshots/dashboard.png
-docs/screenshots/plano.png
-docs/screenshots/trazabilidad.png
-```
+| Inicio | Plano de camas |
+|---|---|
+| ![Panel de inicio de AgroGestor](docs/dashboard.png) | ![Plano de camas de la finca](docs/plano.png) |
+
+### Trazabilidad de lotes
+
+![Búsqueda y listado de lotes con su estado y totales](docs/trazabilidad.png)
 
 ## Arquitectura
 
@@ -199,7 +201,7 @@ Al iniciar Tauri, la API escucha en `http://127.0.0.1:8787` de forma predetermin
 | `GET /api/trazabilidad/lotes/{codigo}/cadena` | Consultar origen, cosechas, destinos y despachos |
 | `GET /api/trazabilidad/lotes/{codigo}/linea-tiempo` | Consultar eventos cronológicos del lote |
 
-La vista y su alcance se describen en [docs/trazabilidad.md](docs/trazabilidad.md). Los datos de demostración son opcionales y se cargan manualmente con los scripts de `tools/seed/`; no se ejecutan como migraciones.
+La vista y su alcance se describen en [docs/trazabilidad.md](docs/trazabilidad.md). La migración `0124_historial_trazabilidad.sql` carga ciclos históricos sintéticos de hasta cinco años para mostrar siembras, labores, cosechas, lotes, controles de calidad, ventas, despachos y lecturas IoT. Los scripts de `tools/seed/` siguen siendo opcionales y se ejecutan manualmente.
 
 Las escrituras enviadas al backend pueden incluir `X-Gestor` con el área responsable:
 
@@ -293,6 +295,8 @@ npm run tauri dev
 
 El backend aplica las migraciones al arrancar. Si PostgreSQL todavía no está disponible, el servicio reintenta el arranque con espera incremental.
 
+La migración `0124_historial_trazabilidad.sql` carga datos demostrativos de hasta cinco años: ciclos de cultivo, cosechas, labores, calidad, ventas, despachos y lecturas semanales de sensores. Las fechas se generan tomando como referencia el día en que se aplica la migración.
+
 ## Simulador IoT
 
 El proyecto incluye un simulador TypeScript para generar lecturas de humedad, temperatura, pH y conductividad.
@@ -359,7 +363,7 @@ La ingesta admite:
 - Expandir dashboards y analítica
 - Consolidar trazabilidad comercial
 - Integrar más fuentes de monitoreo
-- Añadir capturas y demostración estable
+- Ampliar capturas y documentación de la demostración
 - Automatizar pruebas y CI
 - Documentar el modelo entidad-relación
 - Preparar empaquetado y despliegue

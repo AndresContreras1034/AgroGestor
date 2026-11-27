@@ -4,3 +4,8 @@ export interface ResumenAnalitico {
 }
 export interface ProduccionSerie { fecha: string; tallos: number }
 export interface SemaforoItem { zona: string; estado: "verde"|"amarillo"|"rojo"; lecturas: number; alertas: number }
+export interface EstadoAsistente { configurado: boolean; modelo: string; pensamiento: boolean }
+export interface TurnoAsistente { rol: "usuario" | "asistente"; contenido: string }
+export interface RespuestaAsistente {
+  respuesta: string; modelo: string; tokens_entrada: number; tokens_salida: number; duracion_ms: number;
+}

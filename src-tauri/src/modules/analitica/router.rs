@@ -25,6 +25,7 @@ pub fn router() -> Router<AppState> {
         .route("/resumen", get(resumen))
         .route("/produccion", get(produccion))
         .route("/semaforo", get(semaforo))
+        .route("/asistente", get(super::asistente::estado).post(super::asistente::preguntar))
 }
 
 async fn resumen(State(state): State<AppState>) -> Result<Json<ResumenAnalitico>, crate::errors::AppError> {
